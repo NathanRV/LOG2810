@@ -11,6 +11,7 @@ public class Main {
         System.out.println("Hello World!");
         WeightedGraph w = new WeightedGraph();
         List<String> graphInformation = new ArrayList<>();
+        //Will refactor
         try (BufferedReader br = Files.newBufferedReader(Paths.get("resources/arrondissements.txt"))){
             String line;
             while ((line = br.readLine()) != null) {
@@ -22,6 +23,6 @@ public class Main {
             System.out.println(e);
         }
         w.createGraph(graphInformation);
-        System.out.println("Success?");
+        w.printGraph();
     }
 }

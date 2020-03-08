@@ -59,13 +59,24 @@ public class WeightedGraph {
         }
     }
 
+    /**
+     * Prints the weighted graph in order (Current Node, boolean containsRecharge, and list of neighbors)
+     */
+    public void printGraph() {
+        for (Map.Entry<Integer, Node> entry : nodes.entrySet()) {
+            Node currentNode = entry.getValue();
+            System.out.print("(Node " + entry.getKey() + ", Has recharge : " + currentNode.hasRecharge + " (");
+            for (Edge edge : currentNode.edges) {
+                System.out.print("(Neighbor: Node " + edge.destination.index + ", Weight: " + edge.weight + "),");
+            }
+            System.out.print(")))");
+            System.out.println();
+        }
+    }
     public void addNode(Node newNode) {
         nodes.put(newNode.index, newNode);
     }
 
-    public boolean addEdge(Node node, Edge newEdge) {
-       return node.addEdge(newEdge);
-    }
 
     public Collection<Node> plusCourtChemin(Node source, Node destination) {
         return null;
