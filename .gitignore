@@ -39,3 +39,6 @@ gen
 .idea/project-template.xml
 .idea/vcs.xml
 LOG2810.iml
+
+#Google drive sync files
+*.ini
