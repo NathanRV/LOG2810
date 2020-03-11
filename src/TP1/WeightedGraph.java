@@ -102,62 +102,23 @@ public class WeightedGraph {
                 next = entry.getKey();
             }
         }
-
         return Map.entry(next, min);
     }
 
     public Collection<Integer> plusCourtChemin(int indexSource, int indexDestination) {
+        Node sourceNode = nodes.get(indexSource);
+        Node destinationNode = nodes.get(indexDestination);
+        Queue<Node> nodesToCheck = new PriorityQueue<Node>(new NodeComparator());
+        nodesToCheck.add(sourceNode);
 
-        Node source = nodes.get(indexSource);
-        Node destination = nodes.get(indexDestination);
+        while (!nodesToCheck.isEmpty() && nodesToCheck.peek() != null || destinationNode != nodesToCheck.peek()) {
+            Node processingNode = nodesToCheck.peek();
+            Map.Entry<Node, Integer> closestNeighbor = nextNode(processingNode);
+            closestNeighbor.getKey().distance = closestNeighbor.getValue() + processingNode.distance;
 
-        Queue<Node> nodesToCheck = new PriorityQueue<Node>(20, new NodeComparator());
-        nodesToCheck.add(source);
-        source.distance=0;
 
-        Map<Node, Integer> nodesChecked = new HashMap<>();
-        nodesChecked.put(source, source.distance);
-
-        Node prev = source;
-        Map.Entry<Node, Integer> edge;
-        Node next;
-        Integer distance;
-        //tant que pas atteint destination ou qu'il ne reste plus de noeuds à verifier
-        while (nodesToCheck.size() > 0 && prev != destination){
-
-            edge = nextNode(nodesToCheck.element());      //Le plus petit arc
-            next = edge.getKey();
-
-            //trouver noeud connecté à celui ci O(n^2), moyen d'optimiser?
-            for(Node node : nodesChecked.keySet()){
-                for(Map.Entry<Node, Integer> pair : node.adjacentNodes.entrySet()){
-                    if(pair.getKey() == edge.getKey() && pair.getValue().compareTo(edge.getValue())==0){
-                        prev = node;
-                        break;
-                    }
-                }
-            }
-
-            distance = prev.adjacentNodes.get(next); //distance entre les deux
-
-            if(prev.distance + distance < next.distance){
-                next.distance = prev.distance + distance; //Ajout distance
-
-                next.trajet.addAll(prev.trajet); //Ajout trajet jusqu'à date
-                next.trajet.add(prev.index);           //Ajout du noeud précédent
-            }
-
-            if(!nodesChecked.containsKey(next)){
-                nodesToCheck.add(next);
-            }
-            nodesChecked.put(next, next.distance);
-            nodesToCheck.element().adjacentNodes.remove(next);
-            if(nodesToCheck.element().adjacentNodes.size()==0){
-                nodesToCheck.remove();
-            }
         }
-        destination.trajet.add(destination.index);
-        return destination.trajet;
+
     }
 
     public void traiterRequetes(String fileName) {
@@ -176,8 +137,8 @@ public class WeightedGraph {
         public Node (int index, boolean hasRecharge) {
             this.index = index;
             this.hasRecharge = hasRecharge;
-            adjacentNodes=new HashMap<>();
-            distance=Integer.MAX_VALUE;
+            adjacentNodes = new HashMap<>();
+            distance = Integer.MAX_VALUE;
             trajet = new LinkedList<>();
         }
 
