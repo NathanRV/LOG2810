@@ -1,5 +1,6 @@
 package TP1;
 
+import java.io.FileNotFoundException;
 import java.util.*;
 
 public class WeightedGraph {
@@ -11,17 +12,18 @@ public class WeightedGraph {
     Map<Integer, Node> nodes;
 
     public WeightedGraph () {
-        nodes = new HashMap<Integer, Node>();
+        nodes = new HashMap<>();
     }
 
 
     /**
      * Public function that generates the graph recursively
      *
-     * @param graphInformation information originating from txt file, in which each line represents either
+     * @param fileName information originating from txt file, in which each line represents either
      *                         information pertaining to node, or information pertaining to edge
      */
-    public void createGraph(List<String> graphInformation) {
+    public void createGraph(String fileName) throws FileNotFoundException {
+        List<String> graphInformation = GeneralFunctions.readFile(fileName);
         createGraph(graphInformation, 0);
     }
 
@@ -33,7 +35,6 @@ public class WeightedGraph {
      *                         or information pertaining to edge (source, destination, weight)
      *
      * @param lineNumber index of information
-     * @return
      */
     private void createGraph(List<String> graphInformation, int lineNumber) {
         if (lineNumber == graphInformation.size()) {
@@ -69,6 +70,7 @@ public class WeightedGraph {
             for (Edge edge : currentNode.edges) {
                 System.out.print("(Neighbor: Node " + edge.destination.index + ", Weight: " + edge.weight + "),");
             }
+
             System.out.print(")))");
             System.out.println();
         }
@@ -85,6 +87,7 @@ public class WeightedGraph {
     public void traiterRequetes(String fileName) {
 
     }
+
 
     static class Node {
         private int index;
