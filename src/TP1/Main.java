@@ -1,6 +1,8 @@
 package TP1;
 
 import java.io.*;
+import java.util.Collection;
+import java.util.Map;
 
 public class Main {
 
@@ -8,6 +10,8 @@ public class Main {
         WeightedGraph w = new WeightedGraph();
         w.createGraph("arrondissements.txt");
         w.printGraph();
+
+        w.printTrajectory(1, 3);
     }
 
 }
