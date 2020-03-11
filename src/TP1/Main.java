@@ -1,8 +1,6 @@
 package TP1;
 
-import java.io.*;
-import java.util.Collection;
-import java.util.Map;
+import java.io.FileNotFoundException;
 
 public class Main {
 
@@ -11,7 +9,7 @@ public class Main {
         w.createGraph("arrondissements.txt");
         w.printGraph();
 
-        w.printTrajectory(1, 3);
+        w.printTrajectory(1, 7);
     }
 
 }

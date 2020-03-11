@@ -80,11 +80,11 @@ public class WeightedGraph {
      */
     public void printTrajectory(int source, int destination) {
 
-        Collection<WeightedGraph.Node> chemin = plusCourtChemin(source, destination);
+        Collection<Integer> chemin = plusCourtChemin(source, destination);
 
         System.out.print("Trajet : ( ");
-        for (Node node : chemin) {
-            System.out.print(node.index + " ");
+        for (Integer index : chemin) {
+            System.out.print(index + " ");
         }
         System.out.print(")");
     }
@@ -93,11 +93,10 @@ public class WeightedGraph {
         nodes.put(newNode.index, newNode);
     }
 
-
-    public Map.Entry<Node, Integer> nextNode(Map<Node, Integer> nodesToCheck){
+    public Map.Entry<Node, Integer> nextNode(Node nodeToCheck){
         Integer min = null;
         Node next = null;
-        for(Map.Entry<Node, Integer> entry : nodesToCheck.entrySet()){
+        for(Map.Entry<Node, Integer> entry : nodeToCheck.adjacentNodes.entrySet()){
             if( min == null || min.compareTo(entry.getValue())>0 ){
                 min = entry.getValue();
                 next = entry.getKey();
@@ -107,13 +106,15 @@ public class WeightedGraph {
         return Map.entry(next, min);
     }
 
-    public Collection<Node> plusCourtChemin(int indexSource, int indexDestination) {
+    public Collection<Integer> plusCourtChemin(int indexSource, int indexDestination) {
 
         Node source = nodes.get(indexSource);
         Node destination = nodes.get(indexDestination);
 
+        Queue<Node> nodesToCheck = new PriorityQueue<Node>(20, new NodeComparator());
+        nodesToCheck.add(source);
         source.distance=0;
-        Map<Node, Integer> nodesToCheck = source.adjacentNodes;
+
         Map<Node, Integer> nodesChecked = new HashMap<>();
         nodesChecked.put(source, source.distance);
 
@@ -122,9 +123,9 @@ public class WeightedGraph {
         Node next;
         Integer distance;
         //tant que pas atteint destination ou qu'il ne reste plus de noeuds à verifier
-        while (nodesToCheck.size() > 0 && prev!=destination){
+        while (nodesToCheck.size() > 0 && prev != destination){
 
-            edge = nextNode(nodesToCheck);      //Le plus petit arc
+            edge = nextNode(nodesToCheck.element());      //Le plus petit arc
             next = edge.getKey();
 
             //trouver noeud connecté à celui ci O(n^2), moyen d'optimiser?
@@ -137,27 +138,25 @@ public class WeightedGraph {
                 }
             }
 
-            distance = prev.adjacentNodes.get(next);    //distance entre les deux
-            next.distance = prev.distance + distance; //Ajout distance
+            distance = prev.adjacentNodes.get(next); //distance entre les deux
 
-            next.trajet.addAll(prev.trajet); //Ajout trajet jusqu'à date
-            next.trajet.add(prev);           //Ajout du noeud précédent
+            if(prev.distance + distance < next.distance){
+                next.distance = prev.distance + distance; //Ajout distance
 
-            nodesChecked.put(next, distance);
-            nodesToCheck.remove(next);
-
-            // Ajout des nouveaux noeuds dispo
-            for(Map.Entry<Node, Integer> pair : next.adjacentNodes.entrySet()){
-                if(!nodesChecked.containsKey(pair.getKey()) &&
-                        (!nodesToCheck.containsKey(pair.getKey()) ||
-                                nodesToCheck.get(pair.getKey()).compareTo(pair.getValue()) >0)){
-
-                    nodesToCheck.put(pair.getKey(), pair.getValue());
-                }
+                next.trajet.addAll(prev.trajet); //Ajout trajet jusqu'à date
+                next.trajet.add(prev.index);           //Ajout du noeud précédent
             }
 
-            prev = next; //Pour prochaine itération
+            if(!nodesChecked.containsKey(next)){
+                nodesToCheck.add(next);
+            }
+            nodesChecked.put(next, next.distance);
+            nodesToCheck.element().adjacentNodes.remove(next);
+            if(nodesToCheck.element().adjacentNodes.size()==0){
+                nodesToCheck.remove();
+            }
         }
+        destination.trajet.add(destination.index);
         return destination.trajet;
     }
 
@@ -169,9 +168,10 @@ public class WeightedGraph {
     static class Node {
         private int index;
         private boolean hasRecharge;
+
         private Map<Node,Integer> adjacentNodes;
         private Integer distance;
-        private Collection<Node> trajet;
+        private Collection<Integer> trajet;
 
         public Node (int index, boolean hasRecharge) {
             this.index = index;
@@ -183,6 +183,39 @@ public class WeightedGraph {
 
         public void addAdjacentNode(Node node,Integer weight){
             adjacentNodes.put(node,weight);
+        }
+    }
+
+    class NodeComparator implements Comparator<Node>{
+
+        // Overriding compare()method of Comparator
+        // for ascending order of weight
+        public int compare(Node n1, Node n2) {
+            Collection<Integer> weightsN1 = n1.adjacentNodes.values();
+            Integer min1 = Integer.MAX_VALUE;
+            for(Integer weight: weightsN1){
+                if(min1 > weight){
+                    min1 = weight;
+                }
+            }
+
+            Integer dist1 = min1 + n1.distance;
+
+            Collection<Integer> weightsN2 = n2.adjacentNodes.values();
+            Integer min2 = Integer.MAX_VALUE;
+            for(Integer weight: weightsN2){
+                if(min2 > weight){
+                    min2 = weight;
+                }
+            }
+
+            Integer dist2 = min2 + n2.distance;
+
+            if (dist1 > dist2)
+                return 1;
+            else if (dist1 < dist2)
+                return -1;
+            return 0;
         }
     }
 }
