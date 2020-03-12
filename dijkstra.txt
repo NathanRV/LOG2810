@@ -1,0 +1,18 @@
+L'approche Dijkstra utilisé ici consiste de deux structures de données : Un HashSet et un Priority Queue
+
+Différences :
+
+    Les comparaisons de poids ne se fait plus dans le comparator; Le comparateur sert juste à mettre le node avec le plus petit
+    poids à l'avant du Queue
+
+    Pour chaque noeud, en partant de la source, on ajoute tous les noeuds adjacents dans la Priority Queue et
+    dans le HashSet visitedNodes. J'utilise le HashSet pour ne pas ajouter le même noeud deux fois lorsque je met à
+    jour sa distance cumulative. Graĉe au comparator, ce sera le noeud ayant comme distance cumulative la plus faible
+    qui sera au sommet. On répète la même chose pour ce dernier.
+
+    Lorsque la destination sera au sommet de notre Priority Queue, ça nous garantit le plus court chemin.
+
+    J'ai ajouté un attribut pathFrom qui nous indique le noeud dernier qui a mené jusqu'au noeud présent.
+
+    Comme ça, on a juste à retracer tous les noeud "pathFrom" jusqu'à la source et les ajouter dans notre LinkedList
+    pour récupérer le chemin le plus court
