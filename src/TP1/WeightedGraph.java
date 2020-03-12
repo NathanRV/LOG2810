@@ -80,11 +80,11 @@ public class WeightedGraph {
      */
     public void printTrajectory(int source, int destination) {
 
-        Collection<Integer> chemin = plusCourtChemin(source, destination);
+        LinkedList<Node> chemin = plusCourtChemin(source, destination);
 
         System.out.print("Trajet : ( ");
-        for (Integer index : chemin) {
-            System.out.print(index + " ");
+        for (Node node : chemin) {
+            System.out.print(node.index + " ");
         }
         System.out.print(")");
     }
@@ -93,32 +93,52 @@ public class WeightedGraph {
         nodes.put(newNode.index, newNode);
     }
 
-    public Map.Entry<Node, Integer> nextNode(Node nodeToCheck){
-        Integer min = null;
-        Node next = null;
-        for(Map.Entry<Node, Integer> entry : nodeToCheck.adjacentNodes.entrySet()){
-            if( min == null || min.compareTo(entry.getValue())>0 ){
-                min = entry.getValue();
-                next = entry.getKey();
-            }
-        }
-        return Map.entry(next, min);
-    }
+//    public Map.Entry<Node, Integer> nextNode(Node nodeToCheck){
+//        Integer min = null;
+//        Node next = null;
+//        for(Map.Entry<Node, Integer> entry : nodeToCheck.adjacentNodes.entrySet()){
+//            if( min == null || min.compareTo(entry.getValue())>0 ){
+//                min = entry.getValue();
+//                next = entry.getKey();
+//            }
+//        }
+//        return Map.entry(next, min);
+//    }
 
-    public Collection<Integer> plusCourtChemin(int indexSource, int indexDestination) {
+    public LinkedList<Node> plusCourtChemin(int indexSource, int indexDestination) {
+        Queue<Node> nodesToProcess = new PriorityQueue<>(new NodeComparator());
+        Set<Node> visitedNodes = new HashSet<>();
+        LinkedList<Node> shortestPath = new LinkedList<>();
+
         Node sourceNode = nodes.get(indexSource);
         Node destinationNode = nodes.get(indexDestination);
-        Queue<Node> nodesToCheck = new PriorityQueue<Node>(new NodeComparator());
-        nodesToCheck.add(sourceNode);
+        sourceNode.setDistance(0);
+        nodesToProcess.add(sourceNode);
+        visitedNodes.add(sourceNode);
 
-        while (!nodesToCheck.isEmpty() && nodesToCheck.peek() != null || destinationNode != nodesToCheck.peek()) {
-            Node processingNode = nodesToCheck.peek();
-            Map.Entry<Node, Integer> closestNeighbor = nextNode(processingNode);
-            closestNeighbor.getKey().distance = closestNeighbor.getValue() + processingNode.distance;
-
-
+        while (nodesToProcess.peek() != destinationNode && !nodesToProcess.isEmpty()) {
+            Node currentNode = nodesToProcess.poll();
+            Integer currentDistance = currentNode.getDistance();
+            for (Map.Entry<Node, Integer> neighboringNode : currentNode.adjacentNodes.entrySet()) {
+                Node neighbor = neighboringNode.getKey();
+                Integer distanceToNeighbor = neighboringNode.getValue();
+                if (currentDistance + distanceToNeighbor < neighbor.getDistance()) {
+                    neighbor.setDistance(currentDistance + distanceToNeighbor);
+                    neighbor.setPathFrom(currentNode);
+                }
+                if (!visitedNodes.contains(neighbor)) {
+                    nodesToProcess.add(neighbor);
+                }
+                visitedNodes.add(neighbor);
+            }
         }
 
+        Node previousNodeInPath = destinationNode;
+        while (previousNodeInPath.getPathFrom() != null) {
+            shortestPath.addFirst(previousNodeInPath);
+            previousNodeInPath = previousNodeInPath.getPathFrom();
+        }
+        return shortestPath;
     }
 
     public void traiterRequetes(String fileName) {
@@ -131,52 +151,70 @@ public class WeightedGraph {
         private boolean hasRecharge;
 
         private Map<Node,Integer> adjacentNodes;
-        private Integer distance;
-        private Collection<Integer> trajet;
+        private Integer distance = Integer.MAX_VALUE;
+        private Node pathFrom = null;
 
         public Node (int index, boolean hasRecharge) {
             this.index = index;
             this.hasRecharge = hasRecharge;
             adjacentNodes = new HashMap<>();
-            distance = Integer.MAX_VALUE;
-            trajet = new LinkedList<>();
         }
 
         public void addAdjacentNode(Node node,Integer weight){
             adjacentNodes.put(node,weight);
         }
+
+        public Integer getDistance() {
+            return this.distance;
+        }
+
+        public Node getPathFrom() {
+            return this.pathFrom;
+        }
+
+        public void setDistance(Integer distance) {
+            this.distance = distance;
+        }
+
+        public void setPathFrom(Node sourceNode) {
+            this.pathFrom = sourceNode;
+        }
+
     }
 
-    class NodeComparator implements Comparator<Node>{
+    static class NodeComparator implements Comparator<Node>{
 
         // Overriding compare()method of Comparator
         // for ascending order of weight
-        public int compare(Node n1, Node n2) {
-            Collection<Integer> weightsN1 = n1.adjacentNodes.values();
-            Integer min1 = Integer.MAX_VALUE;
-            for(Integer weight: weightsN1){
-                if(min1 > weight){
-                    min1 = weight;
-                }
-            }
-
-            Integer dist1 = min1 + n1.distance;
-
-            Collection<Integer> weightsN2 = n2.adjacentNodes.values();
-            Integer min2 = Integer.MAX_VALUE;
-            for(Integer weight: weightsN2){
-                if(min2 > weight){
-                    min2 = weight;
-                }
-            }
-
-            Integer dist2 = min2 + n2.distance;
-
-            if (dist1 > dist2)
-                return 1;
-            else if (dist1 < dist2)
-                return -1;
-            return 0;
+        public int compare(Node firstNode, Node secondNode) {
+            return firstNode.distance.compareTo(secondNode.distance);
         }
+
+//        public int compare(Node n1, Node n2) {
+//            Collection<Integer> weightsN1 = n1.adjacentNodes.values();
+//            Integer min1 = Integer.MAX_VALUE;
+//            for(Integer weight: weightsN1){
+//                if(min1 > weight){
+//                    min1 = weight;
+//                }
+//            }
+//
+//            Integer dist1 = min1 + n1.distance;
+//
+//            Collection<Integer> weightsN2 = n2.adjacentNodes.values();
+//            Integer min2 = Integer.MAX_VALUE;
+//            for(Integer weight: weightsN2){
+//                if(min2 > weight){
+//                    min2 = weight;
+//                }
+//            }
+//
+//            Integer dist2 = min2 + n2.distance;
+//
+//            if (dist1 > dist2)
+//                return 1;
+//            else if (dist1 < dist2)
+//                return -1;
+//            return 0;
     }
 }
