@@ -93,19 +93,18 @@ public class WeightedGraph {
         nodes.put(newNode.index, newNode);
     }
 
-//    public Map.Entry<Node, Integer> nextNode(Node nodeToCheck){
-//        Integer min = null;
-//        Node next = null;
-//        for(Map.Entry<Node, Integer> entry : nodeToCheck.adjacentNodes.entrySet()){
-//            if( min == null || min.compareTo(entry.getValue())>0 ){
-//                min = entry.getValue();
-//                next = entry.getKey();
-//            }
-//        }
-//        return Map.entry(next, min);
-//    }
+    /**
+     * An implementation of Dijkstra's shortest path algorithm. Computes the shortest path between
+     * two nodes in a Graph
+     *
+     * @param indexSource index of the source node
+     * @param indexDestination index of the destination node
+     * @return shortestPath A list of nodes that represents the shortest path between the source node
+     *                      and the destination node
+     */
 
     public LinkedList<Node> plusCourtChemin(int indexSource, int indexDestination) {
+        resetGraph();
         Queue<Node> nodesToProcess = new PriorityQueue<>(new NodeComparator());
         Set<Node> visitedNodes = new HashSet<>();
         LinkedList<Node> shortestPath = new LinkedList<>();
@@ -139,6 +138,28 @@ public class WeightedGraph {
             previousNodeInPath = previousNodeInPath.getPathFrom();
         }
         return shortestPath;
+    }
+
+    /**
+     * Calculates the cost of distances between every node in the shortest path
+     *
+     * @param path The list containing the nodes in the shortest between point A and B
+     * @return totalDistance the cost in distance for going going from point A and point B
+     */
+
+    public int computeDistanceOfPath(LinkedList<Node> path) {
+        return path.getLast().getDistance();
+    }
+
+    /**
+     * Resets the distance attribute for every node in our graph to "infinity"
+     * and the pathFrom attribute
+     */
+    private void resetGraph() {
+        for (Map.Entry<Integer, Node> node : nodes.entrySet()) {
+            node.getValue().setDistance(Integer.MAX_VALUE);
+            node.getValue().setPathFrom(null);
+        }
     }
 
     public void traiterRequetes(String fileName) {
