@@ -1,15 +1,19 @@
 package TP1;
 import java.io.FileNotFoundException;
-import java.util.*;
 
 public class Main {
 
     public static void main(String[] args) throws FileNotFoundException{
-        WeightedGraph w = new WeightedGraph();
-        w.createGraph("arrondissements.txt");
-        LinkedList<WeightedGraph.Node> path = w.plusCourtChemin(1, 7);
-        System.out.println(w.computeDistanceOfPath(path));
-        w.printTrajectory(1, 7);
-        System.out.println("We made it!");
+
+        //w.traiterRequetes();
+
+        //TODO
+        Driver driver = new Driver("arrondissements.txt", "requetes.txt");
+
+        driver.doAll();
+
+
+        System.out.println();
+        System.out.println("15, 16, 7, 14, 4, 10, 12, 19, 17, 13, 8, 3, 19, 3, 5, 16, 7, 3, 12");
     }
 }

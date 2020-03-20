@@ -9,11 +9,13 @@ public class WeightedGraph {
      * Integer : ID of Node
      * Node : Object Node
      */
-    Map<Integer, Node> nodes;
+    private Map<Integer, Node> nodes;
 
     public WeightedGraph () {
         nodes = new HashMap<>();
     }
+
+    public Map<Integer, Node> getNodes(){ return nodes; }
 
 
     /**
@@ -103,6 +105,10 @@ public class WeightedGraph {
      *                      and the destination node
      */
 
+    public LinkedList<Node> plusCourtChemin(Node source, Node destination) {
+        return plusCourtChemin(source.getIndex(), destination.getIndex());
+    }
+
     public LinkedList<Node> plusCourtChemin(int indexSource, int indexDestination) {
         resetGraph();
         Queue<Node> nodesToProcess = new PriorityQueue<>(new NodeComparator());
@@ -114,6 +120,10 @@ public class WeightedGraph {
         sourceNode.setDistance(0);
         nodesToProcess.add(sourceNode);
         visitedNodes.add(sourceNode);
+        if(sourceNode == destinationNode){
+            shortestPath.add(sourceNode);
+            return shortestPath;
+        }
 
         while (nodesToProcess.peek() != destinationNode && !nodesToProcess.isEmpty()) {
             Node currentNode = nodesToProcess.poll();
@@ -132,11 +142,14 @@ public class WeightedGraph {
             }
         }
 
-        Node previousNodeInPath = destinationNode;
+        //new nodes so attributes not changed by mistake later on
+        Node previousNodeInPath = new Node (destinationNode);
         while (previousNodeInPath.getPathFrom() != null) {
             shortestPath.addFirst(previousNodeInPath);
-            previousNodeInPath = previousNodeInPath.getPathFrom();
+            previousNodeInPath = new Node (previousNodeInPath.getPathFrom());
         }
+        //TODO
+        //shortestPath.addFirst(new Node(sourceNode));
         return shortestPath;
     }
 
@@ -152,6 +165,31 @@ public class WeightedGraph {
     }
 
     /**
+     * Calculates the cost of distances between two nodes with index
+     *
+     * @param indexSource index of the source node
+     * @param indexDestination index of the destination node
+     * @return totalDistance the cost in distance for going going from point A and point B
+     */
+
+    public int computeShortestDistance(int indexSource, int indexDestination) {
+        LinkedList<Node> path = plusCourtChemin(indexSource, indexDestination);
+        return path.getLast().getDistance();
+    }
+
+    /**
+     * Calculates the cost of distances between two nodes
+     *
+     * @param source source node
+     * @param destination destination node
+     * @return totalDistance the cost in distance for going going from point A and point B
+     */
+
+    public int computeShortestDistance(Node source, Node destination) {
+        return computeShortestDistance(source.getIndex(), destination.getIndex());
+    }
+
+    /**
      * Resets the distance attribute for every node in our graph to "infinity"
      * and the pathFrom attribute
      */
@@ -162,8 +200,9 @@ public class WeightedGraph {
         }
     }
 
-    public void traiterRequetes(String fileName) {
-
+    public void traiterRequetes() throws FileNotFoundException {
+        Driver driver = new Driver("arrondissements.txt", "requetes.txt");
+        driver.doAll();
     }
 
 
@@ -175,9 +214,18 @@ public class WeightedGraph {
         private Integer distance = Integer.MAX_VALUE;
         private Node pathFrom = null;
 
+        public Node (Node node){
+            index = node.index;
+            hasRecharge = node.hasRecharge;
+            distance = node.distance;
+            adjacentNodes = node.adjacentNodes;
+            pathFrom = node.pathFrom;
+        }
+
         public Node (int index, boolean hasRecharge) {
             this.index = index;
             this.hasRecharge = hasRecharge;
+            distance = 0;
             adjacentNodes = new HashMap<>();
         }
 
@@ -193,6 +241,10 @@ public class WeightedGraph {
             return this.pathFrom;
         }
 
+        public boolean getRecharge() { return this.hasRecharge; }
+
+        public int getIndex() { return this.index; }
+
         public void setDistance(Integer distance) {
             this.distance = distance;
         }
@@ -200,6 +252,8 @@ public class WeightedGraph {
         public void setPathFrom(Node sourceNode) {
             this.pathFrom = sourceNode;
         }
+
+        public boolean equalsTo(Node compareNode) { return index == compareNode.index; }
 
     }
 
@@ -210,32 +264,5 @@ public class WeightedGraph {
         public int compare(Node firstNode, Node secondNode) {
             return firstNode.distance.compareTo(secondNode.distance);
         }
-
-//        public int compare(Node n1, Node n2) {
-//            Collection<Integer> weightsN1 = n1.adjacentNodes.values();
-//            Integer min1 = Integer.MAX_VALUE;
-//            for(Integer weight: weightsN1){
-//                if(min1 > weight){
-//                    min1 = weight;
-//                }
-//            }
-//
-//            Integer dist1 = min1 + n1.distance;
-//
-//            Collection<Integer> weightsN2 = n2.adjacentNodes.values();
-//            Integer min2 = Integer.MAX_VALUE;
-//            for(Integer weight: weightsN2){
-//                if(min2 > weight){
-//                    min2 = weight;
-//                }
-//            }
-//
-//            Integer dist2 = min2 + n2.distance;
-//
-//            if (dist1 > dist2)
-//                return 1;
-//            else if (dist1 < dist2)
-//                return -1;
-//            return 0;
     }
 }

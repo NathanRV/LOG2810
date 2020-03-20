@@ -1,0 +1,20 @@
+Ajout getRecharge() dans class Node
+et getNodes() dans class WeightedGraph
+
+Creation class Driver
+
+
+
+recharge automatiquement quand node.hasRecharge?
+
+
+
+4 customers max,
+faster to do one customer?
+(time for customersOnBoard not too high, next customer pick up close to arrival)
+
+faster to pick up another customer before?   
+(time for customersOnBoard not too high, taking into account new trajectory and possible recharges)
+
+faster to recharge with customer on?
+(time for customersOnBoard not too high,
