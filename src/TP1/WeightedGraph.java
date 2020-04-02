@@ -64,30 +64,32 @@ public class WeightedGraph {
     /**
      * Prints the weighted graph in order (Current Node, boolean containsRecharge, and list of neighbors)
      */
-    public void printGraph() {
+    public String printGraph() {
+        String graph = "";
         for (Map.Entry<Integer, Node> entry : nodes.entrySet()) {
             Node currentNode = entry.getValue();
-            System.out.print("(Node " + entry.getKey() + ", Has recharge : " + currentNode.hasRecharge + " (");
+            graph += "(Node " + entry.getKey() + ", Has recharge : " + currentNode.hasRecharge + " (";
             for(Map.Entry<Node, Integer> pair: currentNode.adjacentNodes.entrySet()){
-                System.out.print("(Neighbor: Node " + pair.getKey().index + ", Weight: " + pair.getValue() + "),");
+                graph += "(Neighbor: Node " + pair.getKey().index + ", Weight: " + pair.getValue() + "),";
             }
-            System.out.print(")))");
-            System.out.println();
+            graph += ")))";
         }
+        return graph;
     }
 
     /**
      * Prints the shortest trajectory
      */
-    public void printTrajectory(int source, int destination) {
-
+    public String printTrajectory(int source, int destination) {
+        String trajectory = "";
         LinkedList<Node> chemin = plusCourtChemin(source, destination);
 
-        System.out.print("Trajet : ( ");
+        trajectory += "Trajet : ( ";
         for (Node node : chemin) {
-            System.out.print(node.index + " ");
+            trajectory += node.index + " ";
         }
-        System.out.print(")");
+        trajectory += ")";
+        return trajectory;
     }
 
     public void addNode(Node newNode) {

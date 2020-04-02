@@ -4,28 +4,48 @@ import java.awt.event.*;
 import java.io.FileNotFoundException;
 import javax.swing.*;
 
-public class Main extends JFrame implements ActionListener {
+public class Main extends JFrame /*implements ItemListener*/{
 
     static JTextField sourceField, destinationField;
-    static JLabel informationOutput;
+    static JLabel title, informationOutput;
+    //static JComboBox pathIndexesList; supposed to replace jtextfield on the next commit
 
     static WeightedGraph w = new WeightedGraph();
 
     public static void main(String[] args) throws FileNotFoundException {
 
         w.createGraph("arrondissements.txt");
+        String pathIndexes[] = new String[w.getNodes().values().toArray().length];
+        for(WeightedGraph.Node node : w.getNodes().values()) {
+            int i = 1;
+            pathIndexes[i] = Integer.toString(node.getIndex());
+            i++;
+        }
 
         JFrame frame = new JFrame();
-        frame.getContentPane().setLayout(new FlowLayout());
 
-        informationOutput = new JLabel("It is what it is");
-        informationOutput.setBounds(100, 100, 1000, 750);
+        Main main = new Main();
+
+        frame.getContentPane().setLayout(new FlowLayout());
+        JButton refreshButton = new JButton("Mettre a jour la carte");
+        title = new JLabel("TP1 : GRAPHES");
+        informationOutput = new JLabel("");
+        informationOutput.setBounds(450, 50, 2000, 600);
+        //pathIndexesList = new JComboBox(w.getNodes().values().toArray());
+
+        //pathIndexesList.addItemListener(main);
+
+        title.setBounds(450, 50, 2000, 100);
+        informationOutput.setBounds(150, 200, 2000, 400);
+
+        frame.getContentPane().add(title);
         frame.getContentPane().add(informationOutput);
+        //frame.getContentPane().add(pathIndexesList);
 
         sourceField = new JTextField("", 10);
         destinationField = new JTextField("", 10);
 
-        JButton refreshButton = new JButton("Mettre a jour la carte");
+
         JButton closestPathButton = new JButton("Plus court chemin");
         JButton treatRequestsButton = new JButton("Traiter les requetes");
         JButton quitterButton = new JButton("Quitter");
@@ -55,6 +75,35 @@ public class Main extends JFrame implements ActionListener {
         frame.setSize(1000, 1200);
         frame.setLayout(null);
         frame.setVisible(true);
+        refreshButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                informationOutput.setText(w.printGraph());
+            }
+        });
+
+        closestPathButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                informationOutput.setText(w.printTrajectory(Integer.parseInt(sourceField.getText()), Integer.parseInt(destinationField.getText())));
+            }
+        });
+
+        treatRequestsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                informationOutput.setText("need to do some changes to driver.java to print this");
+            }
+        });
+
+        quitterButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.exit(0);
+            }
+        });
+
+
 
         Driver driver = new Driver("arrondissements.txt", "requetes.txt");
 
@@ -63,5 +112,7 @@ public class Main extends JFrame implements ActionListener {
         System.out.println();
         System.out.println("15, 16, 7, 14, 4, 10, 12, 19, 17, 13, 8, 3, 19, 3, 5, 16, 7, 3, 12");
     }
-
+//    public void itemStateChanged(ItemEvent e) {
+//        if(e.getSource() == pathIndexesList) {}
+//    }
 }
