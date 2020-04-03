@@ -115,13 +115,24 @@ public class Driver {
         }
     }
 
-    public void printPath(WeightedGraph.Node node) {
-        if(node != null)
-            printPath += node.getIndex() + " -> ";
-        if(node.getRecharge())
-            printPath += "Recharge -> ";
-        if(node.getClientDroppedOff() != Integer.MAX_VALUE)
-            printPath += "Debarquement client #" + node.getClientDroppedOff() + " -> ";
+    public void printPath(int index, String state) {
+        switch (state) {
+            case "path" :
+                printPath += index + " -> ";
+                break;
+            case "recharge" :
+                printPath += "Recharge @" + index + "->\n";
+                break;
+            case "dropoff":
+                printPath += "Debarquement client #" + index + " -> \n ";
+                break;
+        }
+//        if(node != null)
+//            printPath += node.getIndex() + " -> ";
+//        if(node.getRecharge())
+//            printPath += "Recharge -> ";
+//        if(node.getClientDroppedOff() != Integer.MAX_VALUE)
+//            printPath += "Debarquement client #" + node.getClientDroppedOff() + " -> ";
     }
 
     public void printPathDone() {
@@ -334,7 +345,7 @@ public class Driver {
         if(destinations.isEmpty()) { //if no customers, get next customer
             if(pathDone.isEmpty() || !pathDone.getLast().equalsTo(position)) {
                 pathDone.add(position);
-                printPath(position);
+                printPath(position.getIndex(), "path");
             }
             Customer customer = customers.peek();
             addDestinationLast(customer.source);
@@ -554,6 +565,7 @@ public class Driver {
     public void recharge() {
         if(position.getBorne()){
             position.setRecharge(true);
+            printPath(position.getIndex(), "recharge");
             batteryLevel = 100;
             for (Customer customer : customersOnBoard){
                 //+10 minutes au trajet
@@ -578,6 +590,7 @@ public class Driver {
     public void dropOff(){
         Customer customer = customersOnBoard.peek();
         if(customer != null && customer.destination.getIndex() == position.getIndex()){
+            printPath(customer.index, "dropoff");
             position.setClientDroppedOff(customer.index);
             customersOnBoard.remove(customer);
         }
@@ -598,8 +611,10 @@ public class Driver {
                     for (Customer customer : customersOnBoard) {
                         lastCustomer = customer;
                     }
-                    if (lastCustomer.source.equalsTo(position))
+                    if (lastCustomer.source.equalsTo(position)) {
                         pathDone.addLast(position);
+                        printPath(position.getIndex(), "path");
+                    }
                 }
                 customersOnBoard.add(customers.poll());
                 addDestinationLast(nextCustomer.destination);
@@ -656,8 +671,10 @@ public class Driver {
                 customer.time -= distance;
             }
             for(WeightedGraph.Node node : path){
-                if(!pathToDo.getFirst().equalsTo(pathDone.getLast()))
+                if(!pathToDo.getFirst().equalsTo(pathDone.getLast())) {
                     pathDone.addLast(pathToDo.poll());
+                    printPath(pathDone.getLast().getIndex(), "path");
+                }
                 else
                     pathToDo.poll();
             }

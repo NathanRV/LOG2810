@@ -90,7 +90,7 @@ public class Main extends JFrame{
         closestPathButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                informationOutput.setText(w.printTrajectory(sourceIndexes.getSelectedIndex(), destinationIndexes.getSelectedIndex()));
+                informationOutput.setText(w.printTrajectory(sourceIndexes.getSelectedIndex() + 1, destinationIndexes.getSelectedIndex() + 1));
             }
         });
 
