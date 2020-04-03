@@ -4,59 +4,63 @@ import java.awt.event.*;
 import java.io.FileNotFoundException;
 import javax.swing.*;
 
-public class Main extends JFrame /*implements ItemListener*/{
+public class Main extends JFrame{
 
-    static JTextField sourceField, destinationField;
-    static JLabel title, informationOutput;
-    //static JComboBox pathIndexesList; supposed to replace jtextfield on the next commit
+    static JLabel title, sourceLabel, destinationLabel;
+    static JComboBox sourceIndexes, destinationIndexes;
+    static JTextArea informationOutput;
 
     static WeightedGraph w = new WeightedGraph();
 
     public static void main(String[] args) throws FileNotFoundException {
 
         w.createGraph("arrondissements.txt");
-        String pathIndexes[] = new String[w.getNodes().values().toArray().length];
-        for(WeightedGraph.Node node : w.getNodes().values()) {
-            int i = 1;
-            pathIndexes[i] = Integer.toString(node.getIndex());
-            i++;
-        }
 
         JFrame frame = new JFrame();
 
-        Main main = new Main();
-
         frame.getContentPane().setLayout(new FlowLayout());
-        JButton refreshButton = new JButton("Mettre a jour la carte");
+
         title = new JLabel("TP1 : GRAPHES");
-        informationOutput = new JLabel("");
-        informationOutput.setBounds(450, 50, 2000, 600);
-        //pathIndexesList = new JComboBox(w.getNodes().values().toArray());
+        title.setBounds(400, 50, 2000, 100);
+        informationOutput = new JTextArea(1000, 1000);
+        informationOutput.setBounds(100, 150, 670, 550);
+        sourceLabel = new JLabel("Point de depart");
+        sourceLabel.setBounds(375, 710, 2000, 100);
+        destinationLabel = new JLabel("Destination");
+        destinationLabel.setBounds(610, 710, 2000, 100);
 
-        //pathIndexesList.addItemListener(main);
+        sourceIndexes = new JComboBox(w.getNodes().keySet().toArray());
+        destinationIndexes = new JComboBox(w.getNodes().keySet().toArray());
 
-        title.setBounds(450, 50, 2000, 100);
-        informationOutput.setBounds(150, 200, 2000, 400);
-
+        JScrollPane scrollPane = new JScrollPane(informationOutput);
+        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        //scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+        informationOutput.setEditable(false);
         frame.getContentPane().add(title);
         frame.getContentPane().add(informationOutput);
-        //frame.getContentPane().add(pathIndexesList);
+        frame.getContentPane().add(sourceLabel);
+        frame.getContentPane().add(destinationLabel);
+        frame.getContentPane().add(sourceIndexes);
+        frame.getContentPane().add(destinationIndexes);
 
-        sourceField = new JTextField("", 10);
-        destinationField = new JTextField("", 10);
 
 
+        JButton refreshButton = new JButton("Mettre a jour la carte");
         JButton closestPathButton = new JButton("Plus court chemin");
         JButton treatRequestsButton = new JButton("Traiter les requetes");
         JButton quitterButton = new JButton("Quitter");
 
+        sourceIndexes.setBounds(325, 780, 100, 40);
+        sourceIndexes.setSize(200, 35);
+
+        destinationIndexes.setBounds(550, 780, 100, 40);
+        destinationIndexes.setSize(200, 35);
+
         refreshButton.setBounds(100, 850, 100, 40);
         refreshButton.setSize(200, 75);
 
-        sourceField.setBounds(100, 750, 150,40);
-        destinationField.setBounds(260, 750, 150,40);
-
-        closestPathButton.setBounds(440, 750, 150, 40);
+        closestPathButton.setBounds(100, 750, 150, 40);
+        closestPathButton.setSize(200, 75);
 
         treatRequestsButton.setBounds(325, 850, 100, 40);
         treatRequestsButton.setSize(200, 75);
@@ -69,9 +73,10 @@ public class Main extends JFrame /*implements ItemListener*/{
         frame.getContentPane().add(treatRequestsButton);
         frame.getContentPane().add(quitterButton);
 
-        frame.getContentPane().add(sourceField);
-        frame.getContentPane().add(destinationField);
+        frame.getContentPane().add(sourceIndexes);
+        frame.getContentPane().add(destinationIndexes);
 
+        scrollPane.setLayout(null);
         frame.setSize(1000, 1200);
         frame.setLayout(null);
         frame.setVisible(true);
@@ -85,14 +90,18 @@ public class Main extends JFrame /*implements ItemListener*/{
         closestPathButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                informationOutput.setText(w.printTrajectory(Integer.parseInt(sourceField.getText()), Integer.parseInt(destinationField.getText())));
+                informationOutput.setText(w.printTrajectory(sourceIndexes.getSelectedIndex(), destinationIndexes.getSelectedIndex()));
             }
         });
 
         treatRequestsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                informationOutput.setText("need to do some changes to driver.java to print this");
+                try {
+                    informationOutput.setText(w.traiterRequetes());
+                } catch (FileNotFoundException ex) {
+                    ex.printStackTrace();
+                }
             }
         });
 
@@ -104,7 +113,6 @@ public class Main extends JFrame /*implements ItemListener*/{
         });
 
 
-
         Driver driver = new Driver("arrondissements.txt", "requetes.txt");
 
         driver.doAll();
@@ -112,7 +120,4 @@ public class Main extends JFrame /*implements ItemListener*/{
         System.out.println();
         System.out.println("15, 16, 7, 14, 4, 10, 12, 19, 17, 13, 8, 3, 19, 3, 5, 16, 7, 3, 12");
     }
-//    public void itemStateChanged(ItemEvent e) {
-//        if(e.getSource() == pathIndexesList) {}
-//    }
 }
