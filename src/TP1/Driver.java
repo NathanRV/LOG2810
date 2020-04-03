@@ -14,7 +14,7 @@ public class Driver {
     private LinkedList<WeightedGraph.Node> pathToDo;
     private LinkedList<WeightedGraph.Node> destinations;
     private LinkedList<WeightedGraph.Node> pathDone;
-    public String printPath = "Trajet : ( \n";
+    public String printPath = "Trajet : \n";
 
     public Driver(String graphFileName, String requeteFileName) throws FileNotFoundException {
         batteryLevel = 100;
@@ -87,6 +87,8 @@ public class Driver {
             if(!destinations.isEmpty())
                 nextDestination(); //move next node
         }
+        printPath += "Fin du trajet";
+        updateDistances();
         return printPath;
     }
 
@@ -100,19 +102,20 @@ public class Driver {
     public void updateDistances(){
         Iterator<WeightedGraph.Node> itr = pathDone.iterator();
         WeightedGraph.Node current, prev = null;
-        Integer distance = 0;
+        int distance = 0;
         while(itr.hasNext()){
             current = itr.next();
-            if(current.getRecharge()){
+            if(current.getBorne()){
                 current.setDistance(prev.getDistance());
                 continue;
             }
-            if (prev != null && current != null) {
+            if (prev != null) {
                 distance += graph.computeShortestDistance(prev, current);
                 current.setDistance(distance);
             }
             prev = current;
         }
+        printPath += "\n \n Distance totale : " + pathDone.getLast().getDistance();
     }
 
     public void printPath(int index, String state) {
@@ -121,39 +124,12 @@ public class Driver {
                 printPath += index + " -> ";
                 break;
             case "recharge" :
-                printPath += "Recharge @" + index + "->\n";
+                printPath += "\n Recharge ->\n";
                 break;
             case "dropoff":
-                printPath += "Debarquement client #" + index + " -> \n ";
+                printPath += "\n Debarquement client #" + index + " -> \n ";
                 break;
         }
-//        if(node != null)
-//            printPath += node.getIndex() + " -> ";
-//        if(node.getRecharge())
-//            printPath += "Recharge -> ";
-//        if(node.getClientDroppedOff() != Integer.MAX_VALUE)
-//            printPath += "Debarquement client #" + node.getClientDroppedOff() + " -> ";
-    }
-
-    public void printPathDone() {
-
-        //System.out.print("Trajet : ( ");
-        for (WeightedGraph.Node node : pathDone) {
-            if(node != null)
-                System.out.print(node.getIndex() + " -> ");
-            if(node.getRecharge())
-                System.out.print("Recharge -> ");
-            if(node.getClientDroppedOff() != Integer.MAX_VALUE)
-                System.out.print("Debarquement client #" + node.getClientDroppedOff() + " -> ");
-            /*if(node != null && node.getIndex() != 999)
-                System.out.print(node.getIndex() + " ");
-            else if(node.getIndex() == 999)
-                System.out.print("Recharge ");*/
-        }
-        System.out.println(")");
-        System.out.print("Total distance : ");
-        System.out.println(pathDone.getLast().getDistance());
-
     }
 
     /**
@@ -226,22 +202,6 @@ public class Driver {
         }
     }
 
-    /**
-     * Finds path to the node passed
-     *
-     * @param Node node to go to
-     * @return Path as LinkedList
-     */
-    public LinkedList<WeightedGraph.Node> pathTo(WeightedGraph.Node node){
-        LinkedList<WeightedGraph.Node> path = new LinkedList<>();
-        for(WeightedGraph.Node n : pathToDo){
-            path.addLast(n);
-            if(n.getIndex() == node.getIndex())
-                break;
-        }
-
-        return path;
-    }
 
     /**
      * Detour path on path
@@ -259,7 +219,7 @@ public class Driver {
         }
         forkPath = graph.plusCourtChemin(prev, rechargeNode);
         detour = forkPath;
-        Integer distanceToRecharge = graph.computeDistanceOfPath(forkPath);
+        int distanceToRecharge = graph.computeDistanceOfPath(forkPath);
         for(WeightedGraph.Node node : returnPath){
             node.setDistance(node.getDistance() + distanceToRecharge);
             detour.addLast(node);
@@ -270,53 +230,6 @@ public class Driver {
 
         return pairToReturn;
     }
-
-    /**
-     * Fork to destination
-     *
-     * @param Node source of fork
-     * @param Node node to be added to path
-     * @param Node destination to return
-     * @return void
-     */
-    public LinkedList<WeightedGraph.Node> fork(WeightedGraph.Node source, WeightedGraph.Node fork, WeightedGraph.Node destination) {
-
-        LinkedList<WeightedGraph.Node> testPath = new LinkedList<>(pathToDo);
-
-        //Remove old path
-        Iterator<WeightedGraph.Node> itr = testPath.listIterator();
-        WeightedGraph.Node node = null;
-        int insertIndex = 0;
-        while(itr.hasNext()){
-            node = itr.next();
-            if(node.getIndex() == source.getIndex()){
-                while (itr.hasNext() && node != destination) {
-                    node = itr.next();
-                    insertIndex = testPath.indexOf(node);
-                    itr.remove();
-                }
-                break;
-            }
-        }
-
-        LinkedList<WeightedGraph.Node> forkPathSource, forkReturnPath;
-        forkPathSource = graph.plusCourtChemin(source, fork);
-        forkReturnPath = graph.plusCourtChemin(fork, destination);
-
-        LinkedList<WeightedGraph.Node> newPath = forkPathSource;
-        for(WeightedGraph.Node nodeToAdd : forkReturnPath){
-            newPath.addLast(nodeToAdd);
-        }
-
-        itr = newPath.descendingIterator();
-        while(itr.hasNext()){
-            node = itr.next();
-            testPath.add(insertIndex, node);
-        }
-
-        return testPath;
-    }
-
 
     /**
      * TODO description
@@ -352,7 +265,7 @@ public class Driver {
         }
 
         //Decision tree :
-        /**
+        /*
          * 1.customersOnBoard don't have time to pick up anyone without recharge
          * => drive
          * 2.customersOnBoard don't have time to pick up anyone with recharge
@@ -431,9 +344,9 @@ public class Driver {
                 LinkedList<WeightedGraph.Node> forkPath = detourPair.getKey();
                 LinkedList<WeightedGraph.Node> returnPath = detourPair.getValue();
 
-                Integer distanceBack = returnPath.getLast().getDistance();
+                int distanceBack = returnPath.getLast().getDistance();
 
-                Integer changeInDistance = forkPath.getLast().getDistance()
+                int changeInDistance = forkPath.getLast().getDistance()
                         + returnPath.getLast().getDistance() - currentPath.getLast().getDistance();
 
                 testBattery = 100;
@@ -474,14 +387,13 @@ public class Driver {
     public Pair<WeightedGraph.Node, WeightedGraph.Node> closestRechargeOnPath(LinkedList<WeightedGraph.Node> path) {
         //Current position
         if(position.getBorne()){
-            Pair<WeightedGraph.Node, WeightedGraph.Node> pair = new Pair<WeightedGraph.Node, WeightedGraph.Node>(position, position);
-            return pair;
+            return new Pair<WeightedGraph.Node, WeightedGraph.Node>(position, position);
         }
 
         WeightedGraph.Node closestRechargeOverall = closestRecharge(position);
         WeightedGraph.Node forkNode = null;
         WeightedGraph.Node closestRecharge;
-        Integer closestDistance = graph.computeShortestDistance(position, closestRechargeOverall);
+        int closestDistance = graph.computeShortestDistance(position, closestRechargeOverall);
         for(WeightedGraph.Node node : path){
             closestRecharge = closestRecharge(node);
             int distanceToRecharge = graph.computeShortestDistance(node, closestRecharge);
@@ -493,8 +405,7 @@ public class Driver {
                 forkNode = node;
             }
         }
-        Pair<WeightedGraph.Node, WeightedGraph.Node> pair = new Pair<WeightedGraph.Node, WeightedGraph.Node>(forkNode, closestRechargeOverall);
-        return pair;
+        return new Pair<WeightedGraph.Node, WeightedGraph.Node>(forkNode, closestRechargeOverall);
     }
 
     /**
@@ -517,7 +428,7 @@ public class Driver {
      */
     public WeightedGraph.Node closestRecharge(int indexSource) {
         LinkedList<WeightedGraph.Node> shortestPath = null;
-        Integer shortestDistance;
+        int shortestDistance;
         shortestDistance = Integer.MAX_VALUE;
         Map<Integer, WeightedGraph.Node> nodeMap = graph.getNodes();
 
@@ -543,7 +454,7 @@ public class Driver {
      */
     public WeightedGraph.Node closestNodeOnPath(WeightedGraph.Node destination) {
         WeightedGraph.Node forkNode = null;
-        Integer closestDistance = Integer.MAX_VALUE;
+        int closestDistance = Integer.MAX_VALUE;
         for(WeightedGraph.Node node : pathToDo){
             int distanceToNode = graph.computeShortestDistance(node, destination);
             if(distanceToNode < closestDistance){
@@ -564,7 +475,6 @@ public class Driver {
 
     public void recharge() {
         if(position.getBorne()){
-            position.setRecharge(true);
             printPath(position.getIndex(), "recharge");
             batteryLevel = 100;
             for (Customer customer : customersOnBoard){
@@ -591,7 +501,6 @@ public class Driver {
         Customer customer = customersOnBoard.peek();
         if(customer != null && customer.destination.getIndex() == position.getIndex()){
             printPath(customer.index, "dropoff");
-            position.setClientDroppedOff(customer.index);
             customersOnBoard.remove(customer);
         }
     }
@@ -697,14 +606,5 @@ public class Driver {
             this.source = source;
             this.time = time;
         }
-
-        public void decrementTime(int timeSpent) { time -= timeSpent; }
-
-        public Integer getTime() { return this.time; }
-
-        public WeightedGraph.Node getSource() { return this.source; }
-
-        public WeightedGraph.Node getDestination() { return this.destination; }
-
     }
 }

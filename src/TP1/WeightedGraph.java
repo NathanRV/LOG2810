@@ -69,9 +69,9 @@ public class WeightedGraph {
         String graph = "Carte : ";
         for (Map.Entry<Integer, Node> entry : nodes.entrySet()) {
             Node currentNode = entry.getValue();
-            graph += "Node " + entry.getKey() + ", Has recharge : " + currentNode.getBorne() +"\n";
+            graph = graph + "Node " + entry.getKey() + ", Has recharge : " + currentNode.getBorne() +"\n";
             for(Map.Entry<Node, Integer> pair: currentNode.adjacentNodes.entrySet()){
-                graph += "Neighbor: Node " + pair.getKey().index + ", Weight: " + pair.getValue() + ", ";
+                graph = graph + "Neighbor: Node " + pair.getKey().index + ", Weight: " + pair.getValue() + ", ";
             }
             graph += "\n";
         }
@@ -86,8 +86,10 @@ public class WeightedGraph {
         LinkedList<Node> chemin = plusCourtChemin(source, destination);
 
         trajectory += "Trajet : ( ";
+        if(source != destination)
+            trajectory += source + " ";
         for (Node node : chemin) {
-            trajectory += node.index + " ";
+            trajectory = trajectory + node.index + " ";
         }
         trajectory += ")";
         return trajectory;
@@ -151,7 +153,7 @@ public class WeightedGraph {
             previousNodeInPath = new Node (previousNodeInPath.getPathFrom());
         }
         //TODO
-        //shortestPath.addFirst(new Node(sourceNode));
+        //shortestPath.addFirst(sourceNode);
         return shortestPath;
     }
 
@@ -211,8 +213,6 @@ public class WeightedGraph {
     static class Node {
         private int index;
         private boolean hasBorne;
-        private boolean doesRecharge;
-        private int clientDroppedOff;
 
         private Map<Node,Integer> adjacentNodes;
         private Integer distance = Integer.MAX_VALUE;
@@ -221,8 +221,6 @@ public class WeightedGraph {
         public Node (Node node){
             index = node.index;
             hasBorne = node.hasBorne;
-            doesRecharge = node.doesRecharge;
-            clientDroppedOff = node.clientDroppedOff;
             distance = node.distance;
             adjacentNodes = node.adjacentNodes;
             pathFrom = node.pathFrom;
@@ -231,8 +229,6 @@ public class WeightedGraph {
         public Node (int index, boolean hasBorne) {
             this.index = index;
             this.hasBorne = hasBorne;
-            this.doesRecharge = false;
-            this.clientDroppedOff = Integer.MAX_VALUE;
             distance = 0;
             adjacentNodes = new HashMap<>();
         }
@@ -251,15 +247,7 @@ public class WeightedGraph {
 
         public boolean getBorne() { return this.hasBorne; }
 
-        public boolean getRecharge() { return this.doesRecharge; }
-
-        public int getClientDroppedOff() { return this.clientDroppedOff; }
-
         public int getIndex() { return this.index; }
-
-        public void setRecharge(boolean doesRecharge) { this.doesRecharge = doesRecharge; }
-
-        public void setClientDroppedOff(int index) { this.clientDroppedOff = index; }
 
         public void setDistance(Integer distance) {
             this.distance = distance;
