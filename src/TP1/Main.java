@@ -24,6 +24,7 @@ public class Main extends JFrame{
         title.setBounds(400, 50, 2000, 100);
         informationOutput = new JTextArea(1000, 1000);
         informationOutput.setBounds(100, 150, 670, 550);
+        informationOutput.setMargin( new Insets(10,10,10,10) );
         sourceLabel = new JLabel("Point de depart");
         sourceLabel.setBounds(375, 710, 2000, 100);
         destinationLabel = new JLabel("Destination");
@@ -32,8 +33,24 @@ public class Main extends JFrame{
         sourceIndexes = new JComboBox(w.getNodes().keySet().toArray());
         destinationIndexes = new JComboBox(w.getNodes().keySet().toArray());
 
-        JScrollPane scrollPane = new JScrollPane(informationOutput);
-        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        JScrollBar hScrollBar = new JScrollBar(JScrollBar.HORIZONTAL, 30, 20, 0, 500);
+        JScrollBar vScrollBar = new JScrollBar(JScrollBar.VERTICAL, 30, 40, 0, 500);
+
+        hScrollBar.addAdjustmentListener(new AdjustmentListener() {
+            @Override
+            public void adjustmentValueChanged(AdjustmentEvent e) {
+                frame.repaint();
+            }
+        });
+
+        vScrollBar.addAdjustmentListener(new AdjustmentListener() {
+            @Override
+            public void adjustmentValueChanged(AdjustmentEvent e) {
+                frame.repaint();
+            }
+        });
+
+        //scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         //scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
         informationOutput.setEditable(false);
         frame.getContentPane().add(title);
@@ -42,7 +59,8 @@ public class Main extends JFrame{
         frame.getContentPane().add(destinationLabel);
         frame.getContentPane().add(sourceIndexes);
         frame.getContentPane().add(destinationIndexes);
-
+        frame.getContentPane().add(hScrollBar, BorderLayout.SOUTH);
+        frame.getContentPane().add(vScrollBar, BorderLayout.EAST);
 
 
         JButton refreshButton = new JButton("Mettre a jour la carte");
@@ -76,7 +94,7 @@ public class Main extends JFrame{
         frame.getContentPane().add(sourceIndexes);
         frame.getContentPane().add(destinationIndexes);
 
-        scrollPane.setLayout(null);
+        //scrollPane.setLayout(null);
         frame.setSize(1000, 1200);
         frame.setLayout(null);
         frame.setVisible(true);
