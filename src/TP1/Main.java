@@ -6,98 +6,53 @@ import javax.swing.*;
 
 public class Main extends JFrame{
 
-    static JLabel title, sourceLabel, destinationLabel;
+    static JLabel title;
     static JComboBox sourceIndexes, destinationIndexes;
     static JTextArea informationOutput;
 
     static WeightedGraph w = new WeightedGraph();
 
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void createAndShowGUI() {
+        JFrame frame = new JFrame("LOG2810 - TP1");
 
-        w.createGraph("arrondissements.txt");
-
-        JFrame frame = new JFrame();
-
+        frame.setSize(1000, 1200);
+        frame.setVisible(true);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().setLayout(new FlowLayout());
 
         title = new JLabel("TP1 : GRAPHES");
         title.setBounds(400, 50, 2000, 100);
-        informationOutput = new JTextArea(1000, 1000);
-        informationOutput.setBounds(100, 150, 670, 550);
-        informationOutput.setMargin( new Insets(10,10,10,10) );
-        sourceLabel = new JLabel("Point de depart");
-        sourceLabel.setBounds(375, 710, 2000, 100);
-        destinationLabel = new JLabel("Destination");
-        destinationLabel.setBounds(610, 710, 2000, 100);
 
+        informationOutput = new JTextArea(40, 80);
+        informationOutput.setBounds(100, 150, 670, 550);
+        informationOutput.setLineWrap(true);
+        informationOutput.setWrapStyleWord(true);
+        informationOutput.setMargin( new Insets(20,20,20,20) );
+        informationOutput.setEditable(false);
+
+        JScrollPane scroll = new JScrollPane(informationOutput);
+        scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+
+        JButton closestPathButton = new JButton("Plus court chemin");
         sourceIndexes = new JComboBox(w.getNodes().keySet().toArray());
         destinationIndexes = new JComboBox(w.getNodes().keySet().toArray());
-
-        JScrollBar hScrollBar = new JScrollBar(JScrollBar.HORIZONTAL, 30, 20, 0, 500);
-        JScrollBar vScrollBar = new JScrollBar(JScrollBar.VERTICAL, 30, 40, 0, 500);
-
-        hScrollBar.addAdjustmentListener(new AdjustmentListener() {
-            @Override
-            public void adjustmentValueChanged(AdjustmentEvent e) {
-                frame.repaint();
-            }
-        });
-
-        vScrollBar.addAdjustmentListener(new AdjustmentListener() {
-            @Override
-            public void adjustmentValueChanged(AdjustmentEvent e) {
-                frame.repaint();
-            }
-        });
-
-        //scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-        //scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-        informationOutput.setEditable(false);
-        frame.getContentPane().add(title);
-        frame.getContentPane().add(informationOutput);
-        frame.getContentPane().add(sourceLabel);
-        frame.getContentPane().add(destinationLabel);
-        frame.getContentPane().add(sourceIndexes);
-        frame.getContentPane().add(destinationIndexes);
-        frame.getContentPane().add(hScrollBar, BorderLayout.SOUTH);
-        frame.getContentPane().add(vScrollBar, BorderLayout.EAST);
-
-
         JButton refreshButton = new JButton("Mettre a jour la carte");
-        JButton closestPathButton = new JButton("Plus court chemin");
         JButton treatRequestsButton = new JButton("Traiter les requetes");
         JButton quitterButton = new JButton("Quitter");
 
-        sourceIndexes.setBounds(325, 780, 100, 40);
-        sourceIndexes.setSize(200, 35);
+        JPanel buttonPanel = new JPanel(new GridLayout(2, 3, 10, 10));
+        buttonPanel.add(closestPathButton);
+        buttonPanel.add(sourceIndexes);
+        buttonPanel.add(destinationIndexes);
+        buttonPanel.add(refreshButton);
+        buttonPanel.add(treatRequestsButton);
+        buttonPanel.add(quitterButton);
 
-        destinationIndexes.setBounds(550, 780, 100, 40);
-        destinationIndexes.setSize(200, 35);
+        frame.getContentPane().add(title);
+        frame.getContentPane().add(scroll);
+        frame.getContentPane().add(buttonPanel);
 
-        refreshButton.setBounds(100, 850, 100, 40);
-        refreshButton.setSize(200, 75);
-
-        closestPathButton.setBounds(100, 750, 150, 40);
-        closestPathButton.setSize(200, 75);
-
-        treatRequestsButton.setBounds(325, 850, 100, 40);
-        treatRequestsButton.setSize(200, 75);
-
-        quitterButton.setBounds(550, 850, 100, 40);
-        quitterButton.setSize(200, 75);
-
-        frame.getContentPane().add(refreshButton);
-        frame.getContentPane().add(closestPathButton);
-        frame.getContentPane().add(treatRequestsButton);
-        frame.getContentPane().add(quitterButton);
-
-        frame.getContentPane().add(sourceIndexes);
-        frame.getContentPane().add(destinationIndexes);
-
-        //scrollPane.setLayout(null);
-        frame.setSize(1000, 1200);
-        frame.setLayout(null);
-        frame.setVisible(true);
         refreshButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -129,6 +84,19 @@ public class Main extends JFrame{
                 System.exit(0);
             }
         });
+    }
+
+
+    public static void main(String[] args) throws FileNotFoundException {
+
+        w.createGraph("arrondissements.txt");
+        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                createAndShowGUI();
+            }
+        });
+
 
     }
 }
