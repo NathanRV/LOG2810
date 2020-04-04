@@ -14,7 +14,7 @@ public class Driver {
     private LinkedList<WeightedGraph.Node> pathToDo;
     private LinkedList<WeightedGraph.Node> destinations;
     private LinkedList<WeightedGraph.Node> pathDone;
-    public String printPath = "Trajet : \n";
+    private String output = "Trajet : \n";
 
     public Driver(String graphFileName, String requeteFileName) throws FileNotFoundException {
         batteryLevel = 100;
@@ -32,7 +32,7 @@ public class Driver {
      * Public function that generates the customers recursively
      *
      * @param fileName information originating from txt file, in which each line represents either
-     *                         information pertaining to node, or information pertaining to adjacentNodes
+     *                         information regarding the node, or information regarding adjacentNodes
      */
     public void initialiseDriver(String fileName) throws FileNotFoundException {
         List<String> customerInformation = GeneralFunctions.readFile(fileName);
@@ -75,37 +75,37 @@ public class Driver {
 
 
     /**
-     * TODO description
+     * Finds the shortest path to serve as many customers in their respective time limit
+     * all while maintaining a battery percentage of over 15%
      *
-     * @param TODO TODO
-     * @return void
+     * @return String of shortest path
      */
 
-    public String doAll() {
+    public String traiterRequetes() {
         while(customers.size() > 0 || !customersOnBoard.isEmpty()){
-            nextAction();
+            addCustomersOnBoard();
             if(!destinations.isEmpty())
                 nextDestination(); //move next node
         }
-        printPath += "Fin du trajet";
+        output += "Fin du trajet";
         updateDistances();
-        return printPath;
+        return output;
     }
 
     /**
-     * Prints path followed
+     * Calculates the total distance of the path followed by the driver to serve
+     * all the customers
      *
-     * @param None
-     * @return void
      */
 
     public void updateDistances(){
         Iterator<WeightedGraph.Node> itr = pathDone.iterator();
         WeightedGraph.Node current, prev = null;
         int distance = 0;
+
         while(itr.hasNext()){
             current = itr.next();
-            if(current.getBorne()){
+            if(current.getBorne() && prev != null) {
                 current.setDistance(prev.getDistance());
                 continue;
             }
@@ -115,28 +115,35 @@ public class Driver {
             }
             prev = current;
         }
-        printPath += "\n \n Distance totale : " + pathDone.getLast().getDistance();
+        output += "\n \n Distance totale : " + pathDone.getLast().getDistance();
     }
+
+    /**
+     * Adds path information to output string
+     *
+     * @param index corresponds to either the index of the customer or of the node
+     * @param state according to state, printPath adds the appropriate string to output
+     */
 
     public void printPath(int index, String state) {
         switch (state) {
             case "path" :
-                printPath += index + " -> ";
+                output += index + " -> ";
                 break;
             case "recharge" :
-                printPath += "\n Recharge ->\n";
+                output += "\n Recharge ->\n";
                 break;
             case "dropoff":
-                printPath += "\n Debarquement client #" + index + " -> \n ";
+                output += "\n Debarquement client #" + index + " -> \n ";
                 break;
         }
     }
 
     /**
      * Updates all attributes including destinations, nodes distance, pathToDo related to destinations
+     * and adds the node to destinations list at the last position
      *
-     * @param Node destination node to be added
-     * @return void
+     * @param destination node to be added
      */
     public void addDestinationLast(WeightedGraph.Node destination) {
         if(!destinations.isEmpty()) {
@@ -157,10 +164,10 @@ public class Driver {
     }
 
     /**
-     * Updates all attributes related to destinations
+     * Updates all attributes including destinations, nodes distance, pathToDo related to destinations
+     * and adds the node to destinations list at the last position
      *
-     * @param Node destination node to be added
-     * @return void
+     * @param destination node to be added first
      */
     public void addDestinationFirst(WeightedGraph.Node destination) {
         if(destination.getIndex() == destinations.getFirst().getIndex())
@@ -194,7 +201,7 @@ public class Driver {
                 pathToDo.addFirst(node);
             }
         }
-        else{
+        else {
             destinations.addFirst(destination);
             LinkedList<WeightedGraph.Node> path = graph.plusCourtChemin(position, destination);
             path.poll();
@@ -204,11 +211,12 @@ public class Driver {
 
 
     /**
-     * Detour path on path
+     * Detour path to a recharging station on path
      *
-     * @param LinkedList path to find detour on
+     * @param path path to find detour on
      * @return DetourPath as LinkedList
      */
+
     public Pair<LinkedList<WeightedGraph.Node>, LinkedList<WeightedGraph.Node>> detourPath(LinkedList<WeightedGraph.Node> path){
         Pair<WeightedGraph.Node, WeightedGraph.Node> pair = closestRechargeOnPath(path);
         WeightedGraph.Node prev = position, fork = pair.getKey();
@@ -237,31 +245,31 @@ public class Driver {
      * @param TODO TODO
      * @return void
      */
-    public void nextAction() {
-        Customer firstCust = customersOnBoard.peek(); //first customer to drop off
+    public void addCustomersOnBoard() {
+        Customer firstCustomer = customersOnBoard.peek(); //first customer to drop off
         while(!customersOnBoard.isEmpty() &&
-                firstCust.destination.getIndex() == position.getIndex()){//if we're at the customers destination, drop off
+                firstCustomer.destination.getIndex() == position.getIndex()) {   //if we're at the customers destination, drop off
             dropOff();
-            firstCust = customersOnBoard.peek();
+            firstCustomer = customersOnBoard.peek();
         }
+
         //if 4 customersOnBoard, return
         if(customersOnBoard.size() >= 4){
             return;
         }
-        //if not 4 customersOnBoard, try picking up
+        //if not 4 customersOnBoard, try to fill customersOnBoard
         while (pickUp() && customersOnBoard.size() < 4) { }
 
-        //if no more customers to pick up
+        //if no more customers to pick up, return
         if(customers.isEmpty())
             return;
 
-        if(destinations.isEmpty()) { //if no customers, get next customer
+        if(destinations.isEmpty()) { //if nowhere to go, get next customer
             if(pathDone.isEmpty() || !pathDone.getLast().equalsTo(position)) {
                 pathDone.add(position);
                 printPath(position.getIndex(), "path");
             }
-            Customer customer = customers.peek();
-            addDestinationLast(customer.source);
+            addDestinationLast(customers.peek().source);
         }
 
         //Decision tree :
@@ -284,34 +292,40 @@ public class Driver {
          *  check if nextCustomer's time enough for currentPath
          */
 
-        Customer nextCust = customers.peek(); //next customer
+        Customer nextCustomer = customers.peek();
 
-        LinkedList<WeightedGraph.Node> forkPathSource, forkPathDestination, forkReturnPath, classicPath, normalPath;
-        normalPath = graph.plusCourtChemin(position, destinations.getFirst());
-        WeightedGraph.Node forkNodeSource = closestNodeOnPath(nextCust.source);
+        /*verifying that forkNodeSource is before the first destination in pathToDo */
+
+        //forkNodeSource: closest node on pathToDo to the next customer's current position
+        WeightedGraph.Node forkNodeSource = closestNodeOnPath(nextCustomer.source);
+
+        //currentPath: adding all of pathToDo's nodes to currentPath up until we find the destinations node
         LinkedList<WeightedGraph.Node> currentPath = new LinkedList<>();
+        WeightedGraph.Node node = null;
 
         Iterator<WeightedGraph.Node> itr = pathToDo.iterator();
-        WeightedGraph.Node node = null;
         while(itr.hasNext()){
             node = itr.next();
             if(node.getIndex() != destinations.getFirst().getIndex()) {
                 currentPath.addLast(node);
             }
-            else{
+            else {
                 break;
             }
         }
 
-        //if fork isn't before next destination
+        //if forkNodeSource is not in currentPath, then it's placed after the first destination, return
         if(!currentPath.contains(forkNodeSource))
             return;
 
-        forkPathSource = graph.plusCourtChemin(forkNodeSource, nextCust.source);
-        forkReturnPath = graph.plusCourtChemin(nextCust.source, destinations.getFirst());
-        forkPathDestination = graph.plusCourtChemin(destinations.getLast(), nextCust.destination);
-        classicPath = graph.plusCourtChemin(nextCust.source, nextCust.destination);
-        LinkedList<WeightedGraph.Node> pickUpPath = graph.plusCourtChemin(destinations.getLast(), nextCust.source);
+
+        LinkedList<WeightedGraph.Node> forkPathSource = graph.plusCourtChemin(forkNodeSource, nextCustomer.source);
+        LinkedList<WeightedGraph.Node> forkPathDestination = graph.plusCourtChemin(destinations.getLast(), nextCustomer.destination);
+
+        LinkedList<WeightedGraph.Node> normalPath = graph.plusCourtChemin(position, destinations.getFirst());
+        LinkedList<WeightedGraph.Node> forkReturnPath = graph.plusCourtChemin(nextCustomer.source, destinations.getFirst());
+        LinkedList<WeightedGraph.Node> classicPath = graph.plusCourtChemin(nextCustomer.source, nextCustomer.destination);
+        LinkedList<WeightedGraph.Node> pickUpPath = graph.plusCourtChemin(destinations.getLast(), nextCustomer.source);
 
         Integer normalDistance = normalPath.getLast().getDistance();
         Integer classicDistance = classicPath.getLast().getDistance();
@@ -364,7 +378,7 @@ public class Driver {
         Integer totalTimeForNext = totalTimeAdded - forkSourceDistance; //minus time to get to source
 
         //Time for next customer
-        if(nextCust.time.compareTo(totalTimeForNext) < 0)
+        if(nextCustomer.time.compareTo(totalTimeForNext) < 0)
             return;
 
         //Time for customers on board
@@ -374,7 +388,7 @@ public class Driver {
         }
 
         //if passed all test add pick up
-        addDestinationFirst(nextCust.source);
+        addDestinationFirst(nextCustomer.source);
     }
 
     /**
@@ -450,7 +464,7 @@ public class Driver {
      *
      * @param path path of the nodes
      * @param destination node which we want to go to
-     * @return node closest on path
+     * @return node closest on path to destination
      */
     public WeightedGraph.Node closestNodeOnPath(WeightedGraph.Node destination) {
         WeightedGraph.Node forkNode = null;

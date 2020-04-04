@@ -206,7 +206,7 @@ public class WeightedGraph {
 
     public String traiterRequetes() throws FileNotFoundException {
         Driver driver = new Driver("arrondissements.txt", "requetes.txt");
-        return driver.doAll();
+        return driver.traiterRequetes();
     }
 
 
