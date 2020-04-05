@@ -21,7 +21,6 @@ public class Main extends JFrame{
         frame.getContentPane().setLayout(new FlowLayout());
 
         title = new JLabel("TP1 : GRAPHES");
-        title.setBounds(400, 50, 2000, 100);
 
         informationOutput = new JTextArea(40, 80);
         informationOutput.setBounds(100, 150, 670, 550);
@@ -87,7 +86,6 @@ public class Main extends JFrame{
 
 
     public static void main(String[] args) throws FileNotFoundException {
-
         w.createGraph("arrondissements.txt");
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             @Override

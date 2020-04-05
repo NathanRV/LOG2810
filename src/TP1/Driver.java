@@ -89,7 +89,7 @@ public class Driver {
             if(!destinations.isEmpty())
                 goToNextDestination(); //move next node
         }
-        traiterRequetesOutput += "Fin du trajet";
+        traiterRequetesOutput += "\nFin du trajet";
         updateTotalDistances();
         return traiterRequetesOutput;
     }
@@ -114,7 +114,7 @@ public class Driver {
             }
             prev = current;
         }
-        traiterRequetesOutput += "\n \n Distance totale : " + pathDone.getLast().getDistance();
+        traiterRequetesOutput += "\n\nDistance totale : " + pathDone.getLast().getDistance();
     }
 
     /**
@@ -132,10 +132,10 @@ public class Driver {
                 traiterRequetesOutput += index + " -> ";
                 break;
             case "recharge" :
-                traiterRequetesOutput += "\n Recharge ->\n";
+                traiterRequetesOutput += "Recharge -> \n";
                 break;
             case "dropoff":
-                traiterRequetesOutput += "\n Debarquement client #" + index + " -> \n ";
+                traiterRequetesOutput += "Debarquement client #" + index + " -> \n";
                 break;
         }
     }
@@ -463,13 +463,13 @@ public class Driver {
     }
 
     /**
-     * Public helper function that finds the closest recharge node to source node
+     * Private helper function that finds the closest recharge node to source node
      *
      * @param indexSource index of the source node to find closest recharge to
      * @return recharge node closest to source
      *
      */
-    public WeightedGraph.Node closestRecharge(int indexSource) {
+    private WeightedGraph.Node closestRecharge(int indexSource) {
         LinkedList<WeightedGraph.Node> shortestPath = null;
         int shortestDistance;
         shortestDistance = Integer.MAX_VALUE;

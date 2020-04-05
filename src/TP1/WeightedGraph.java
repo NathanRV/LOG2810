@@ -73,12 +73,12 @@ public class WeightedGraph {
      *
      */
     public String printGraph() {
-        String graph = "Carte : ";
+        String graph = "Carte : \n\n";
         for (Map.Entry<Integer, Node> entry : nodes.entrySet()) {
             Node currentNode = entry.getValue();
             graph = graph + "Node " + entry.getKey() + ", Has recharge : " + currentNode.getBorne() +"\n";
             for(Map.Entry<Node, Integer> pair: currentNode.adjacentNodes.entrySet()){
-                graph = graph + "Neighbor: Node " + pair.getKey().index + ", Weight: " + pair.getValue() + ", ";
+                graph = graph + "Neighbor: Node " + pair.getKey().index + ", Weight: " + pair.getValue() + "\n";
             }
             graph += "\n";
         }
@@ -211,7 +211,7 @@ public class WeightedGraph {
 
     /**
      * Public function that resets the distance attribute for every node in our graph to "infinity"
-     * and the pathFrom attribute
+     * and the pathFrom attribute to null
      *
      */
     private void resetGraph() {
