@@ -91,6 +91,7 @@ public class Driver {
         }
         traiterRequetesOutput += "\nFin du trajet";
         updateTotalDistances();
+        traiterRequetesOutput += "\n\nCharge de la batterie : " + batteryLevel;
         return traiterRequetesOutput;
     }
 
