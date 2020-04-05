@@ -555,7 +555,7 @@ public class Driver {
                     for (Customer customer : customersOnBoard) {
                         lastCustomer = customer;
                     }
-                    if (lastCustomer.source.equalsTo(currentPos)) {
+                    if (lastCustomer.source.equalsTo(currentPos) && !pathDone.getLast().equalsTo(currentPos)) {
                         pathDone.addLast(currentPos);
                         printPath(currentPos.getIndex(), "path");
                     }
@@ -634,7 +634,7 @@ public class Driver {
                 customer.time -= distance;
             }
             for(WeightedGraph.Node node : path){
-                if(!pathToDo.getFirst().equalsTo(pathDone.getLast())) {
+                if(!pathToDo.getFirst().equalsTo(pathDone.getLast()) && !pathDone.getLast().equalsTo(pathToDo.getFirst())) {
                     pathDone.addLast(pathToDo.poll());
                     printPath(pathDone.getLast().getIndex(), "path");
                 }
