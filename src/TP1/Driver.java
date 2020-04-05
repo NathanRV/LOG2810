@@ -99,7 +99,6 @@ public class Driver {
      * Public function that calculates the total distance of the path followed by the driver to serve
      * all the customers
      *
-     *
      */
 
     public void updateTotalDistances(){
@@ -124,7 +123,6 @@ public class Driver {
      * @param index corresponds to either the index of the customer or of the node
      * @param state according to state, printPath adds the appropriate string to output
      *
-     *
      */
 
     public void printPath(int index, String state) {
@@ -132,7 +130,6 @@ public class Driver {
             case "path" :
                 traiterRequetesOutput += index + " -> ";
                 break;
-                //TODO
             case "pickup" :
                 traiterRequetesOutput += "Embarquement client #" + index + " -> \n";
                 break;
@@ -150,7 +147,6 @@ public class Driver {
      * and adds the node to destinations list at the last position
      *
      * @param destination node to be added last in destinations list
-     *
      */
     public void addDestinationLast(WeightedGraph.Node destination) {
         if(!destinations.isEmpty()) {
@@ -175,7 +171,6 @@ public class Driver {
      * and adds the node to destinations list at the last position
      *
      * @param destination node to be added first in destinations list
-     *
      */
     public void addDestinationFirst(WeightedGraph.Node destination) {
         if(destination.getIndex() == destinations.getFirst().getIndex())
@@ -225,8 +220,9 @@ public class Driver {
      *
      * @param path path to find detour on
      *
-     * @return Pair<LinkedList<WeightedGraph.Node>, LinkedList<WeightedGraph.Node>> of the detour path from current position to recharge node
-     *                                                                              and the return path from recharge node to path's last node
+     * @return Pair<LinkedList<WeightedGraph.Node>, LinkedList<WeightedGraph.Node>>
+     *     of the detour path from current position to recharge node
+     *      and the return path from recharge node to path's last node
      *
      */
 
@@ -277,21 +273,17 @@ public class Driver {
         }
 
         //if not 4 customersOnBoard, try to pickUp
-        //TODO
-        //if(pickUp())
-            //queueCustomersDestination();
         while(pickUp() && customersOnBoard.size() <4) {}
+
+        //while next customers time is finished, "dispatch to other drivers"
+        while(!customers.isEmpty() && customers.peek().time<0) {
+            customers.poll();
+            return;
+        }
 
         //if no more customers to pick up, return
         if(customers.isEmpty())
             return;
-
-        //if next customers time is finished
-        if(customers.peek().time<0) {
-            for(Customer customer : customers)
-                customers.poll();
-            return;
-        }
 
         //if nowhere to go, get next customer
         if(destinations.isEmpty()) {
