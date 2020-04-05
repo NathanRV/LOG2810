@@ -131,6 +131,10 @@ public class Driver {
             case "path" :
                 traiterRequetesOutput += index + " -> ";
                 break;
+                //TODO
+            case "pickup" :
+                traiterRequetesOutput += "Embarquement client #" + index + " -> \n";
+                break;
             case "recharge" :
                 traiterRequetesOutput += "Recharge -> \n";
                 break;
@@ -552,15 +556,19 @@ public class Driver {
             if (currentPos.getIndex() == nextCustomer.source.getIndex()) {
                 if(!customersOnBoard.isEmpty()) {
                     Customer lastCustomer = null;
+                    lastCustomer = customersOnBoard.element();
                     for (Customer customer : customersOnBoard) {
                         lastCustomer = customer;
                     }
+                    Customer testCustom = customersOnBoard.element();
                     if (lastCustomer.source.equalsTo(currentPos) && !pathDone.getLast().equalsTo(currentPos)) {
                         pathDone.addLast(currentPos);
-                        printPath(currentPos.getIndex(), "path");
+                        printPath(//lastCustomer.index, "pickup");
+                                currentPos.getIndex(), "pickup");
                     }
                 }
                 customersOnBoard.add(customers.poll());
+                printPath(nextCustomer.index, "pickup");
                 addDestinationLast(nextCustomer.destination);
                 return true;
             }

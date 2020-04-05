@@ -28,7 +28,9 @@ public class WeightedGraph {
      * @param fileName information originating from txt file, in which each line represents either
      *                         information pertaining to node, or information pertaining to adjacentNodes
      */
+    //TODO
     public void createGraph(String fileName) throws FileNotFoundException {
+        nodes.clear();
         List<String> graphInformation = GeneralFunctions.readFile(fileName);
         createGraph(graphInformation, 0);
     }

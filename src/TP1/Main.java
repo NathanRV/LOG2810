@@ -1,11 +1,11 @@
 package TP1;
-import java.awt.*;
-import java.awt.event.*;
-import java.io.FileNotFoundException;
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.FileNotFoundException;
 
 public class Main extends JFrame{
-
     static JLabel title;
     static JComboBox sourceIndexes, destinationIndexes;
     static JTextArea informationOutput;
@@ -54,6 +54,11 @@ public class Main extends JFrame{
         refreshButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                try {
+                    w.createGraph("arrondissements.txt");
+                } catch (FileNotFoundException ex) {
+                    informationOutput.setText("Le fichier arrondissements.txt n'existe pas dans le bon dossier!");
+                }
                 informationOutput.setText(w.printGraph());
             }
         });
