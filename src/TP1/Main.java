@@ -91,6 +91,9 @@ public class Main extends JFrame{
 
 
     public static void main(String[] args) throws FileNotFoundException {
+        //TODO erase
+        Driver driver = new Driver("arrondissements.txt", "requetes.txt");
+        driver.traiterRequetes();
         w.createGraph("arrondissements.txt");
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             @Override

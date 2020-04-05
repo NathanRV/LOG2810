@@ -276,12 +276,22 @@ public class Driver {
             return;
         }
 
-        //if not 4 customersOnBoard, try to fill customersOnBoard
-        while (pickUp() && customersOnBoard.size() < 4) { }
+        //if not 4 customersOnBoard, try to pickUp
+        //TODO
+        //if(pickUp())
+            //queueCustomersDestination();
+        while(pickUp() && customersOnBoard.size() <4) {}
 
         //if no more customers to pick up, return
         if(customers.isEmpty())
             return;
+
+        //if next customers time is finished
+        if(customers.peek().time<0) {
+            for(Customer customer : customers)
+                customers.poll();
+            return;
+        }
 
         //if nowhere to go, get next customer
         if(destinations.isEmpty()) {
@@ -312,7 +322,6 @@ public class Driver {
          *  check latestCustomer's time considering recharge
          *  check if nextCustomer's time enough for currentPath
          */
-
         Customer nextCustomer = customers.peek();
 
         /*verifying that forkSourceNode is before the first destination in pathToDo */
@@ -337,9 +346,7 @@ public class Driver {
         if(!currentPath.contains(forkSourceNode))
             return;
 
-
         /*verify that the forkPath is shorter than the originalPath*/
-
         //normalPath: nodes of shortest path between driver's current position and the first destination node
         LinkedList<WeightedGraph.Node> normalPath = graph.plusCourtChemin(currentPos, destinations.getFirst());
         //classicPath: nodes of shortest path between nextCustomer's current position and his destination node
@@ -364,21 +371,16 @@ public class Driver {
 
         Integer forkDistance = forkSourceDistance + forkReturnDistance + forkDestinationDistance;
         Integer originalDistance = normalDistance + classicDistance + pickUpDistance;
-
         Integer changeDistance = forkDistance - originalDistance;
 
         //if the original distance is shorter than the fork distance, return
         if(changeDistance > 0)
             return;
 
-
-        /*verify when recharge is needed*/
-
+        //Verify when recharge is needed
         LinkedList<WeightedGraph.Node> destinationsCopy, destinationPath;
         destinationsCopy = new LinkedList<>(destinations);
-
         WeightedGraph.Node prev = currentPos, next;
-
         Integer batteryCopy = batteryLevel;
         Integer timeForRecharges = 0;
 
@@ -522,8 +524,11 @@ public class Driver {
         if(currentPos.getBorne()){
             printPath(currentPos.getIndex(), "recharge");
             batteryLevel = 100;
-            //substract time of recharge (10 minutes) to client's waiting time to their destination
+            //substract time of recharge (10 minutes) to client's time
             for (Customer customer : customersOnBoard){
+                customer.time -= 10;
+            }
+            for (Customer customer : customers){
                 customer.time -= 10;
             }
         }
@@ -564,8 +569,7 @@ public class Driver {
                     Customer testCustom = customersOnBoard.element();
                     if (lastCustomer.source.equalsTo(currentPos) && !pathDone.getLast().equalsTo(currentPos)) {
                         pathDone.addLast(currentPos);
-                        printPath(//lastCustomer.index, "pickup");
-                                currentPos.getIndex(), "pickup");
+                        printPath(currentPos.getIndex(), "path");
                     }
                 }
                 customersOnBoard.add(customers.poll());
@@ -642,8 +646,11 @@ public class Driver {
             for(Customer customer : customersOnBoard){
                 customer.time -= distance;
             }
+            for(Customer customer : customers){
+                customer.time -= distance;
+            }
             for(WeightedGraph.Node node : path){
-                if(!pathToDo.getFirst().equalsTo(pathDone.getLast()) && !pathDone.getLast().equalsTo(pathToDo.getFirst())) {
+                if(!pathToDo.getFirst().equalsTo(pathDone.getLast())) {
                     pathDone.addLast(pathToDo.poll());
                     printPath(pathDone.getLast().getIndex(), "path");
                 }
