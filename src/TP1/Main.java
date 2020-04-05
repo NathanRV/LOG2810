@@ -27,11 +27,10 @@ public class Main extends JFrame{
         informationOutput.setBounds(100, 150, 670, 550);
         informationOutput.setLineWrap(true);
         informationOutput.setWrapStyleWord(true);
-        informationOutput.setMargin( new Insets(20,20,20,20) );
+        informationOutput.setMargin( new Insets(20,20,0,20) );
         informationOutput.setEditable(false);
 
         JScrollPane scroll = new JScrollPane(informationOutput);
-        scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
         JButton closestPathButton = new JButton("Plus court chemin");

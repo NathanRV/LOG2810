@@ -17,6 +17,10 @@ public class WeightedGraph {
 
     public Map<Integer, Node> getNodes(){ return nodes; }
 
+    public void addNode(Node newNode) {
+        nodes.put(newNode.index, newNode);
+    }
+
 
     /**
      * Public function that generates the graph recursively
@@ -35,8 +39,8 @@ public class WeightedGraph {
      *
      * @param graphInformation list of either information pertaining to the creation of the node (index, hasBorne; size = 2)
      *                         or information pertaining to adjacentNodes (node, weight)
-     *
      * @param lineNumber index of information
+     *
      */
     private void createGraph(List<String> graphInformation, int lineNumber) {
         if (lineNumber == graphInformation.size()) {
@@ -63,7 +67,10 @@ public class WeightedGraph {
     }
 
     /**
-     * Prints the weighted graph in order (Current Node, boolean containsRecharge, and list of neighbors)
+     * Public function that prints the weighted graph in order (Current Node, boolean containsRecharge, and list of neighbors)
+     *
+     * @return String of the graph
+     *
      */
     public String printGraph() {
         String graph = "Carte : ";
@@ -79,7 +86,10 @@ public class WeightedGraph {
     }
 
     /**
-     * Prints the shortest trajectory
+     * Public function that prints the shortest trajectory
+     *
+     * @return String of trajectory
+     *
      */
     public String printTrajectory(int source, int destination) {
         String trajectory = "Plus court chemin: \n";
@@ -95,16 +105,11 @@ public class WeightedGraph {
         return trajectory;
     }
 
-    public void addNode(Node newNode) {
-        nodes.put(newNode.index, newNode);
-    }
-
     /**
-     * An implementation of Dijkstra's shortest path algorithm. Computes the shortest path between
-     * two nodes in a Graph
+     * Public function calls plusCourtChemin with the node's indexes
      *
-     * @param indexSource index of the source node
-     * @param indexDestination index of the destination node
+     * @param source origin point
+     * @param destination destination point
      * @return shortestPath A list of nodes that represents the shortest path between the source node
      *                      and the destination node
      */
@@ -112,6 +117,17 @@ public class WeightedGraph {
     public LinkedList<Node> plusCourtChemin(Node source, Node destination) {
         return plusCourtChemin(source.getIndex(), destination.getIndex());
     }
+
+
+    /**
+     * Public helper function that implements Dijkstra's shortest path algorithm. Computes the shortest path between
+     * two nodes in a graph
+     *
+     * @param indexSource origin point
+     * @param indexDestination destination point
+     * @return shortestPath A list of nodes that represents the shortest path between the source node
+     *                      and the destination node
+     */
 
     public LinkedList<Node> plusCourtChemin(int indexSource, int indexDestination) {
         resetGraph();
@@ -124,6 +140,7 @@ public class WeightedGraph {
         sourceNode.setDistance(0);
         nodesToProcess.add(sourceNode);
         visitedNodes.add(sourceNode);
+
         if(sourceNode == destinationNode){
             shortestPath.add(sourceNode);
             return shortestPath;
@@ -152,13 +169,12 @@ public class WeightedGraph {
             shortestPath.addFirst(previousNodeInPath);
             previousNodeInPath = new Node (previousNodeInPath.getPathFrom());
         }
-        //TODO
-        //shortestPath.addFirst(sourceNode);
+
         return shortestPath;
     }
 
     /**
-     * Calculates the cost of distances between every node in the shortest path
+     * Public function that calculates the cost of distances between every node in the shortest path
      *
      * @param path The list containing the nodes in the shortest between point A and B
      * @return totalDistance the cost in distance for going going from point A and point B
@@ -169,7 +185,7 @@ public class WeightedGraph {
     }
 
     /**
-     * Calculates the cost of distances between two nodes with index
+     * Public function that calculates the cost of distances between two nodes with index
      *
      * @param indexSource index of the source node
      * @param indexDestination index of the destination node
@@ -182,7 +198,7 @@ public class WeightedGraph {
     }
 
     /**
-     * Calculates the cost of distances between two nodes
+     * Public function that calculates the cost of distances between two nodes
      *
      * @param source source node
      * @param destination destination node
@@ -194,8 +210,9 @@ public class WeightedGraph {
     }
 
     /**
-     * Resets the distance attribute for every node in our graph to "infinity"
+     * Public function that resets the distance attribute for every node in our graph to "infinity"
      * and the pathFrom attribute
+     *
      */
     private void resetGraph() {
         for (Map.Entry<Integer, Node> node : nodes.entrySet()) {
@@ -204,6 +221,13 @@ public class WeightedGraph {
         }
     }
 
+    /**
+     * Public function that resets the distance attribute for every node in our graph to "infinity"
+     * and the pathFrom attribute
+     *
+     * @return String
+     *
+     */
     public String traiterRequetes() throws FileNotFoundException {
         Driver driver = new Driver("arrondissements.txt", "requetes.txt");
         return driver.traiterRequetes();
@@ -263,7 +287,7 @@ public class WeightedGraph {
 
     static class NodeComparator implements Comparator<Node>{
 
-        // Overriding compare()method of Comparator
+        // Overriding compare() method of Comparator
         // for ascending order of weight
         public int compare(Node firstNode, Node secondNode) {
             return firstNode.distance.compareTo(secondNode.distance);
