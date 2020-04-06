@@ -6,14 +6,23 @@ import java.io.FileNotFoundException;
 import java.util.*;
 
 public class Driver {
+    //car's battery level from 0 to 100
     private Integer batteryLevel;
+    //list of all the customers on requetes.txt that the driver has not picked up
     private Queue<Customer> customers;
+    //customers the driver is serving, max size of 4 at a time
     private Queue<Customer> customersOnBoard;
+    //map of all the neighborhoods
     private WeightedGraph graph;
+    //current position of the driver
     private WeightedGraph.Node currentPos;
+    //path the driver needs to follow
     private LinkedList<WeightedGraph.Node> pathToDo;
+    //destinations the driver can and has to get to
     private LinkedList<WeightedGraph.Node> destinations;
+    //path the driver has driven on
     private LinkedList<WeightedGraph.Node> pathDone;
+    //output on interface of the full trajectory
     private String traiterRequetesOutput = "Trajet : \n";
 
     public Driver(String graphFileName, String requeteFileName) throws FileNotFoundException {
@@ -152,10 +161,11 @@ public class Driver {
         if(!destinations.isEmpty()) {
             LinkedList<WeightedGraph.Node> path = graph.plusCourtChemin(destinations.getLast(), destination);
             destinations.addLast(destination);
-
-            Integer latestDistance = pathToDo.getLast().getDistance();
+            //adding the node.getDistance which corresponds to the distance from path's first node to node
+            //to oldDistance which corresponds to the distance from the first to the last node on pathToDo
+            Integer oldDistance = pathToDo.getLast().getDistance();
             for (WeightedGraph.Node node : path) {
-                node.setDistance(node.getDistance() + latestDistance);
+                node.setDistance(node.getDistance() + oldDistance);
                 pathToDo.addLast(new WeightedGraph.Node(node));
             }
         }
@@ -164,6 +174,34 @@ public class Driver {
             LinkedList<WeightedGraph.Node> path = graph.plusCourtChemin(currentPos, destination);
             pathToDo.addAll(path);
         }
+    }
+
+    /**
+     *
+     *
+     */
+    public void removeDestinationLast() {
+        WeightedGraph.Node destination = destinations.getLast();
+        if (destination == null)
+            return;
+
+        //removes last destination
+        destinations.removeLast();
+
+        if(!destinations.isEmpty()) {
+            //path from second to last destination to the last destination
+            LinkedList<WeightedGraph.Node> path = graph.plusCourtChemin(destinations.peekLast(), destination);
+            for (WeightedGraph.Node node : path) {
+                pathToDo.removeLast();
+            }
+        }
+        else {
+            LinkedList<WeightedGraph.Node> path = graph.plusCourtChemin(currentPos, destination);
+            for (WeightedGraph.Node node : path) {
+                pathToDo.removeLast();
+            }
+        }
+
     }
 
     /**
@@ -273,10 +311,10 @@ public class Driver {
         }
 
         //if not 4 customersOnBoard, try to pickUp
-        while(pickUp() && customersOnBoard.size() <4) {}
+        while(pickUp() && customersOnBoard.size() < 4) {}
 
         //while next customers time is finished, "dispatch to other drivers"
-        while(!customers.isEmpty() && customers.peek().time<0) {
+        while(!customers.isEmpty() && customers.peek().time <= 0) {
             customers.poll();
             return;
         }
@@ -291,6 +329,7 @@ public class Driver {
                 pathDone.add(currentPos);
                 printPath(currentPos.getIndex(), "path");
             }
+            //adding customer's source to destinations so we can see if the driver can pick him up
             if (customers.peek() != null) {
                 addDestinationLast(customers.peek().source);
             }
@@ -316,6 +355,7 @@ public class Driver {
          */
         Customer nextCustomer = customers.peek();
 
+
         /*verifying that forkSourceNode is before the first destination in pathToDo */
 
         //forkSourceNode: closest node on pathToDo to the next customer's current position
@@ -334,11 +374,16 @@ public class Driver {
             }
         }
 
-        //if forkSourceNode is not in currentPath, then it's placed after the first destination, return
-        if(!currentPath.contains(forkSourceNode))
+        //if forkSourceNode is not in currentPath, then it's placed after the first destination,
+        // remove the customer's source off of destinations and return
+        if(!currentPath.contains(forkSourceNode)) {
+            //removeDestinationLast();
             return;
+        }
+
 
         /*verify that the forkPath is shorter than the originalPath*/
+
         //normalPath: nodes of shortest path between driver's current position and the first destination node
         LinkedList<WeightedGraph.Node> normalPath = graph.plusCourtChemin(currentPos, destinations.getFirst());
         //classicPath: nodes of shortest path between nextCustomer's current position and his destination node
@@ -365,11 +410,15 @@ public class Driver {
         Integer originalDistance = normalDistance + classicDistance + pickUpDistance;
         Integer changeDistance = forkDistance - originalDistance;
 
-        //if the original distance is shorter than the fork distance, return
-        if(changeDistance > 0)
+        //if the original distance is shorter than the fork distance,
+        //remove the customer's source off of destinations return
+        if(changeDistance > 0) {
+            //removeDestinationLast();
             return;
+        }
 
-        //Verify when recharge is needed
+        /* verify when recharge is needed */
+
         LinkedList<WeightedGraph.Node> destinationsCopy, destinationPath;
         destinationsCopy = new LinkedList<>(destinations);
         WeightedGraph.Node prev = currentPos, next;
@@ -407,17 +456,20 @@ public class Driver {
         Integer totalTimeForNext = totalTimeAdded - forkSourceDistance; //minus time to get to source
 
         //if time to get to next customer's goes over his time limit, return
-        if(nextCustomer.time.compareTo(totalTimeForNext) < 0)
+        if(nextCustomer.time.compareTo(totalTimeForNext) < 0) {
+            //removeDestinationLast();
             return;
-
+        }
         //if time to get to next customer on board goes over his time limit, return
         for(Customer customer : customersOnBoard){
-            if(customer.time.compareTo(totalTimeAdded) < 0)
+            if(customer.time.compareTo(totalTimeAdded) < 0) {
+                //removeDestinationLast();
                 return;
+            }
         }
 
         //if passed all test, add pick up
-        addDestinationFirst(nextCustomer.source);
+        //addDestinationFirst(nextCustomer.source);
     }
 
     /**
@@ -558,7 +610,6 @@ public class Driver {
                     for (Customer customer : customersOnBoard) {
                         lastCustomer = customer;
                     }
-                    Customer testCustom = customersOnBoard.element();
                     if (lastCustomer.source.equalsTo(currentPos) && !pathDone.getLast().equalsTo(currentPos)) {
                         pathDone.addLast(currentPos);
                         printPath(currentPos.getIndex(), "path");
@@ -578,6 +629,8 @@ public class Driver {
      *
      */
     public void goToNextDestination() {
+        if(destinations.getFirst() == null)
+            return;
         goTo(destinations.getFirst());
     }
 
@@ -657,9 +710,13 @@ public class Driver {
     }
 
     static class Customer {
+        //customer's initial position
         private WeightedGraph.Node source;
+        //customer's desired arrival point
         private WeightedGraph.Node destination;
+        //customer's deadline time counting starting at when the driver is spawned
         private Integer time;
+        //number of the client in ascending order from requetes.txt
         private int index;
 
         public Customer(int index, WeightedGraph.Node source, WeightedGraph.Node destination, Integer time) {
