@@ -177,34 +177,6 @@ public class Driver {
     }
 
     /**
-     *
-     *
-     */
-    public void removeDestinationLast() {
-        WeightedGraph.Node destination = destinations.getLast();
-        if (destination == null)
-            return;
-
-        //removes last destination
-        destinations.removeLast();
-
-        if(!destinations.isEmpty()) {
-            //path from second to last destination to the last destination
-            LinkedList<WeightedGraph.Node> path = graph.plusCourtChemin(destinations.peekLast(), destination);
-            for (WeightedGraph.Node node : path) {
-                pathToDo.removeLast();
-            }
-        }
-        else {
-            LinkedList<WeightedGraph.Node> path = graph.plusCourtChemin(currentPos, destination);
-            for (WeightedGraph.Node node : path) {
-                pathToDo.removeLast();
-            }
-        }
-
-    }
-
-    /**
      * Public function that updates all attributes including destinations, nodes distance, pathToDo related to destinations
      * and adds the node to destinations list at the last position
      *
@@ -467,9 +439,6 @@ public class Driver {
                 return;
             }
         }
-
-        //if passed all test, add pick up
-        //addDestinationFirst(nextCustomer.source);
     }
 
     /**
